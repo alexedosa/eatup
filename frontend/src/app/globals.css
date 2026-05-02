@@ -1,0 +1,138 @@
+@import "tailwindcss";
+
+@variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --color-mist-grey: #1a1c1e;
+  --color-mist-card: #242628;
+  --font-sans: var(--font-inter), 'Inter', sans-serif;
+  --font-display: var(--font-instrument-sans), 'Instrument Sans', sans-serif;
+  --color-surface-50: #f8fafc; 
+  --color-surface-600: #4b5563; 
+
+  --color-brand-50: #fff7ed;  /* Used in .sidebar-link.active */
+  --color-brand-500: #f97316; /* Used in .sidebar-link:focus-visible */
+  --color-brand-600: #ea580c; /* Used in .sidebar-link.active */
+}
+
+
+:root {
+  --bg-primary: #ffffff;
+  --bg-secondary: #f9fafb;
+  --text-primary: #111827;
+  --text-secondary: #4b5563;
+  --border-color: #e5e7eb;
+}
+
+.dark {
+  --bg-primary: #1a1c1e;
+  --bg-secondary: #242628;
+  --text-primary: #f9fafb;
+  --text-secondary: #9ca3af;
+  --border-color: #2d2f31;
+}
+
+/* Targeted transitions only where needed (interactive elements) */
+button, [role="button"], input, select, textarea, a, .sidebar-link {
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+}
+
+.theme-transition {
+  transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+}
+
+h1, h2, h3, h4, h5, h6, .font-display {
+  font-family: var(--font-display), 'Instrument Sans', sans-serif;
+  letter-spacing: -0.02em;
+  font-weight: 600; /* Sensible default, can be overridden by Tailwind */
+}
+
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: var(--font-inter), 'Inter', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+button, input, select, textarea {
+  font-family: inherit;
+  letter-spacing: inherit;
+}
+
+@keyframes slideInLabel {
+  0% {
+    opacity: 0;
+    transform: translateX(-12px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-in {
+  animation: fadeIn 0.3s ease-out forwards;
+}
+
+/* Mobile bottom safe area */
+@media (max-width: 768px) {
+  .mobile-bottom-safe {
+    padding-bottom: env(safe-area-inset-bottom, 16px);
+  }
+  
+  /* Prevent content from hiding behind bottom bar */
+  .pb-mobile-safe {
+    padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+/* Prevent body scroll when drawer is open */
+body.drawer-open {
+  overflow: hidden;
+}
+
+/* Premium Custom Scrollbar */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #e5e7eb;
+  border-radius: 20px;
+}
+
+.dark .custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #d1d5db;
+}
+
+.dark .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* Reduce motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
