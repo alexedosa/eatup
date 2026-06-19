@@ -1,8 +1,7 @@
-import { POPULAR_ITEMS } from '@/data/vendorOverviewData'
 import GlassCard from '../../shared/GlassCard'
 import Image from 'next/image'
 
-export default function PopularItems({ onItemClick }) {
+export default function PopularItems({ onItemClick, dashboardData }) {
   
   const formatNaira = (amount) => {
     return new Intl.NumberFormat('en-NG', {
@@ -12,6 +11,9 @@ export default function PopularItems({ onItemClick }) {
       maximumFractionDigits: 0
     }).format(amount)
   }
+
+  const productsList = dashboardData?.products?.slice(0, 5) || [];
+  const popularStats = dashboardData?.stats?.popularItems || [];
 
   // Smart food image mapping
   const getFoodImage = (name) => {
@@ -24,8 +26,10 @@ export default function PopularItems({ onItemClick }) {
     return 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=100&h=100&fit=crop'
   }
   
-  // Max orders for progress bar
-  const maxOrders = POPULAR_ITEMS[0]?.orders || 100
+  // Max orders for progress bar - either from stats or a default
+
+  const maxOrders = popularStats.length > 0 ? popularStats[0].orders : 100
+
   
   return (
     <GlassCard className="col-span-1 md:col-span-2">
@@ -51,54 +55,79 @@ export default function PopularItems({ onItemClick }) {
             </tr>
           </thead>
           <tbody>
-            {POPULAR_ITEMS.map((item) => {
-              const orderPercent = (item.orders / maxOrders) * 100
+            {productsList.length > 0 ? productsList.map((item, index) => {
+              const rank = index + 1;
+              const orderPercent = 0; // No order data available
               return (
                 <tr 
-                  key={item.rank}
+                  key={item._id || item.id || rank}
                   onClick={() => onItemClick?.(item.name)}
                   className="border-b border-stone-50 dark:border-white/5 cursor-pointer hover:bg-amber-50/30 dark:hover:bg-white/5 transition-colors"
                 >
                   <td className="py-2.5">
                     <span className={`
                       w-5 h-5 rounded-md flex items-center justify-center text-[10px] font-bold
-                      ${item.rank === 1 ? 'bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-400' : 'bg-stone-100 dark:bg-white/10 text-stone-500 dark:text-stone-400'}
+                      ${rank === 1 ? 'bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-400' : 'bg-stone-100 dark:bg-white/10 text-stone-500 dark:text-stone-400'}
                     `}>
-                      {item.rank}
+                      {rank}
                     </span>
                   </td>
                   <td className="py-2.5">
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-lg overflow-hidden border border-white/10">
-                        <Image 
-                          src={getFoodImage(item.name)} 
-                          alt={item.name} 
-                          width={32} 
-                          height={32} 
-                          className="object-cover"
-                        />
+                      <div className="w-8 h-8 rounded-lg overflow-hidden border border-white/10 relative">
+                        {item.images && item.images.length > 0 ? (
+                            <Image 
+                            src={item.images[0]} 
+                            alt={item.name} 
+                            fill
+                            className="object-cover"
+                          />
+                        ) : (
+                            <Image 
+                            src={getFoodImage(item.name)} 
+                            alt={item.name} 
+                            fill
+                            className="object-cover"
+                          />
+                        )}
                       </div>
                       <span className="font-medium text-stone-800 dark:text-white">{item.name}</span>
                     </div>
                   </td>
-                  <td className="py-2.5 text-stone-500 dark:text-stone-400 text-xs hidden md:table-cell">{item.category}</td>
+                  <td className="py-2.5 text-stone-500 dark:text-stone-400 text-xs hidden md:table-cell">{item.category?.name || item.category || 'Uncategorized'}</td>
                   <td className="py-2.5 text-right">
                     <div className="flex items-center justify-end gap-2">
-                      <span className="text-sm font-semibold text-stone-700 dark:text-white">{item.orders}</span>
-                      <div className="w-16 bg-stone-100 dark:bg-white/10 rounded-full h-1.5 hidden sm:block">
-                        <div 
-                          className="bg-amber-400 rounded-full h-1.5 transition-all duration-500"
-                          style={{ width: `${orderPercent}%` }}
-                        />
-                      </div>
+                      {(() => {
+                        const stats = popularStats.find(s => s.productId === (item._id || item.id));
+                        const orders = stats?.orders || 0;
+                        const percent = maxOrders > 0 ? (orders / maxOrders) * 100 : 0;
+                        return (
+                          <>
+                            <span className="text-sm font-semibold text-stone-700 dark:text-white">{orders}</span>
+                            <div className="w-16 bg-stone-100 dark:bg-white/10 rounded-full h-1.5 hidden sm:block">
+                              <div 
+                                className="bg-amber-400 rounded-full h-1.5 transition-all duration-500"
+                                style={{ width: `${percent}%` }}
+                              />
+                            </div>
+                          </>
+                        )
+                      })()}
                     </div>
+
                   </td>
                   <td className="py-2.5 text-right text-stone-600 dark:text-stone-300 font-medium hidden lg:table-cell">
-                    {formatNaira(item.revenue)}
+                    {formatNaira(item.price || 0)}
                   </td>
                 </tr>
               )
-            })}
+            }) : (
+              <tr>
+                <td colSpan="5" className="text-center py-8 text-stone-500 dark:text-stone-400">
+                  No products found. Start by adding some to your menu!
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>

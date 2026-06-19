@@ -1,7 +1,15 @@
 import { motion } from 'framer-motion'
-import { ORDER_STATUS_CONFIG } from '@/data/mockOrders'
+import { Receipt1, Timer1, Truck, TickCircle } from 'iconsax-reactjs';
+
+const ORDER_STATUS_CONFIG = {
+  new: { label: 'New Orders', color: 'amber', icon: Receipt1, bg: 'bg-amber-50', text: 'text-amber-600' },
+  preparing: { label: 'Preparing', color: 'blue', icon: Timer1, bg: 'bg-blue-50', text: 'text-blue-600' },
+  delivering: { label: 'Delivering', color: 'purple', icon: Truck, bg: 'bg-purple-50', text: 'text-purple-600' },
+  completed: { label: 'Completed', color: 'green', icon: TickCircle, bg: 'bg-green-50', text: 'text-green-600' }
+}
 
 export default function OrderStatsCards({ counts }) {
+
   const stats = [
     { key: 'new', ...ORDER_STATUS_CONFIG.new, count: counts.new },
     { key: 'preparing', ...ORDER_STATUS_CONFIG.preparing, count: counts.preparing },

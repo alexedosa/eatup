@@ -1,6 +1,6 @@
 // src/components/vendor/rs2/settings/TeamSettings.jsx
 import { useState } from 'react'
-import { ROLES } from '@/data/mockSettings'
+import { ROLES } from '@/lib/settingsUtils'
 import { People, UserAdd, Trash, Edit2, ShieldTick, LampOn } from 'iconsax-reactjs'
 
 export default function TeamSettings({ 

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { storeInfo } from "@/data/mockStats";
+import { useVendorData } from "@/hooks/useVendorData";
 
 const NAV_ITEMS = [
   {
@@ -148,6 +148,7 @@ const NAV_ITEMS = [
 
 export default function Sidebar({ mobileOpen, onClose }) {
   const pathname = usePathname();
+  const vendorInfo = useVendorData();
 
   const isActive = (href) =>
     href === "/vendor/dashboard"
@@ -198,14 +199,14 @@ export default function Sidebar({ mobileOpen, onClose }) {
         <div className="px-4 py-3 border-b border-surface-100 shrink-0">
           <div className="flex items-center gap-2.5 bg-surface-50 rounded-lg px-3 py-2">
             <div className="w-7 h-7 rounded-md bg-brand-100 text-brand-600 flex items-center justify-center text-xs font-bold shrink-0">
-              {storeInfo.logo}
+              {vendorInfo.logo}
             </div>
             <div className="min-w-0">
               <p className="text-xs font-semibold text-surface-800 truncate">
-                {storeInfo.name}
+                {vendorInfo.name}
               </p>
               <p className="text-xs text-surface-400 truncate">
-                {storeInfo.category}
+                {vendorInfo.category}
               </p>
             </div>
           </div>

@@ -7,12 +7,25 @@
   --color-mist-card: #242628;
   --font-sans: var(--font-inter), 'Inter', sans-serif;
   --font-display: var(--font-instrument-sans), 'Instrument Sans', sans-serif;
-  --color-surface-50: #f8fafc; 
-  --color-surface-600: #4b5563; 
+  --color-surface-50: #f8fafc;
+  --color-surface-600: #4b5563;
 
-  --color-brand-50: #fff7ed;  /* Used in .sidebar-link.active */
-  --color-brand-500: #f97316; /* Used in .sidebar-link:focus-visible */
-  --color-brand-600: #ea580c; /* Used in .sidebar-link.active */
+  /* Dashboard brand (kept for vendor/rider UI) */
+  --color-brand-50: #fff7ed;
+  --color-brand-500: #f97316;
+  --color-brand-600: #ea580c;
+
+  /* ── Landing page design tokens (mirrors eatup.html) ── */
+  --color-lp-orange: #FF6B2C;
+  --color-lp-orange-hot: #FF4500;
+  --color-lp-black: #0A0A0A;
+  --color-lp-surface: #111111;
+  --color-lp-surface2: #171717;
+  --color-lp-muted: #888888;
+  --color-lp-vendor-green: #1DB954;
+  --color-lp-vendor-bg: #071A0E;
+  --color-lp-rider-blue: #3B82F6;
+  --color-lp-rider-bg: #050D1A;
 }
 
 
@@ -45,6 +58,41 @@ h1, h2, h3, h4, h5, h6, .font-display {
   font-family: var(--font-display), 'Instrument Sans', sans-serif;
   letter-spacing: -0.02em;
   font-weight: 600; /* Sensible default, can be overridden by Tailwind */
+}
+
+.font-logo {
+  font-family: var(--font-logo), 'Playfair Display', Georgia, serif;
+}
+
+.font-jakarta {
+  font-family: var(--font-jakarta), 'Plus Jakarta Sans', sans-serif;
+}
+
+@keyframes blob-drift-1 {
+  0%, 100% { transform: translate(0, 0) scale(1) rotate(0deg); }
+  33%       { transform: translate(40px, -30px) scale(1.08) rotate(15deg); }
+  66%       { transform: translate(-20px, 20px) scale(0.94) rotate(-10deg); }
+}
+
+@keyframes blob-drift-2 {
+  0%, 100% { transform: translate(0, 0) scale(1) rotate(0deg); }
+  33%       { transform: translate(-35px, 25px) scale(1.06) rotate(-12deg); }
+  66%       { transform: translate(25px, -20px) scale(0.96) rotate(8deg); }
+}
+
+@keyframes blob-drift-3 {
+  0%, 100% { transform: translate(0, 0) scale(1) rotate(0deg); }
+  50%       { transform: translate(20px, 30px) scale(1.05) rotate(20deg); }
+}
+
+@keyframes hero-float {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-14px); }
+}
+
+@keyframes hero-float-phone {
+  0%, 100% { transform: translateY(0px) rotate(-2deg); }
+  50%       { transform: translateY(-10px) rotate(-2deg); }
 }
 
 body {
@@ -82,6 +130,241 @@ button, input, select, textarea {
 
 .animate-in {
   animation: fadeIn 0.3s ease-out forwards;
+}
+
+/* Landing — dish ticker */
+.dish-ticker-track {
+  display: flex;
+  align-items: center;
+  width: max-content;
+  animation: dishTickerScroll 50s linear infinite;
+  will-change: transform;
+}
+
+.dish-ticker-item {
+  display: flex;
+  align-items: center;
+  padding: 0 clamp(24px, 3.5vw, 56px);
+  white-space: nowrap;
+}
+
+@keyframes dishTickerScroll {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dish-ticker-track {
+    animation: none !important;
+    transform: translateX(0) !important;
+  }
+}
+
+/* ── Food Gallery ── */
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  grid-template-rows: 340px 400px 260px;
+  gap: 4px;
+  width: 100%;
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 0 5%;
+}
+
+/* Grid area placements — original reference layout */
+.g-one   { grid-area: 1 / 1 / 2 / 6; }
+.g-two   { grid-area: 1 / 6 / 2 / 11; }
+.g-three { grid-area: 2 / 1 / 3 / 8; }
+.g-four  { grid-area: 2 / 8 / 4 / 11; }
+.g-five  { grid-area: 3 / 5 / 4 / 8; }
+.g-six   { grid-area: 3 / 1 / 4 / 5; }
+
+/* Base card — fills entire grid cell */
+.gallery-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: 4px;
+  cursor: pointer;
+  background: #111;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  min-width: 0;
+}
+
+/* Image wrapper — edge-to-edge fill */
+.gallery-card .gc-image-wrap {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.gallery-card .gc-img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover;
+  object-position: center;
+  transition: transform 0.75s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.gallery-card:hover .gc-img {
+  transform: scale(1.05);
+}
+
+/* Persistent very dark gradient at bottom — keeps name tag readable */
+.gallery-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    transparent 40%,
+    rgba(6,6,6,0.55) 75%,
+    rgba(4,4,4,0.85) 100%
+  );
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* Dark overlay that slides away on hover */
+.gallery-card .gc-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(8,8,8,0.52);
+  transition: transform 0.65s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 2;
+}
+
+/* Slide directions */
+.gslide-up:hover    .gc-overlay { transform: translateY(-101%); }
+.gslide-down:hover  .gc-overlay { transform: translateY(101%); }
+.gslide-left:hover  .gc-overlay { transform: translateX(-101%); }
+.gslide-right:hover .gc-overlay { transform: translateX(101%); }
+
+/* Label — always at bottom (above ::after gradient), hidden until hover */
+.gallery-card .gc-label {
+  position: absolute;
+  bottom: 18px;
+  left: 20px;
+  right: 20px;
+  z-index: 3;
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 0.38s ease 0.2s, transform 0.38s ease 0.2s;
+}
+.gallery-card:hover .gc-label {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Resting name tag — always visible */
+.gallery-card .gc-tag {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  z-index: 3;
+  background: rgba(6,6,6,0.58);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,0.09);
+  border-radius: 100px;
+  padding: 4px 12px;
+  transition: opacity 0.3s ease;
+}
+.gallery-card:hover .gc-tag { opacity: 0; }
+
+@media (max-width: 900px) {
+  .gallery-grid {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto;
+    width: 100%;
+    padding: 0 4%;
+    gap: 4px;
+  }
+  .g-one   { grid-area: unset; grid-column: span 1; min-height: 240px; }
+  .g-two   { grid-area: unset; grid-column: span 1; min-height: 240px; }
+  .g-three { grid-area: unset; grid-column: span 2; min-height: 260px; }
+  .g-four  { grid-area: unset; grid-column: span 1; min-height: 280px; }
+  .g-five  { grid-area: unset; grid-column: span 1; min-height: 240px; }
+  .g-six   { grid-area: unset; grid-column: span 1; min-height: 240px; }
+
+  .vs-inner {
+    flex-direction: column !important;
+    padding: 0 24px !important;
+    gap: 48px !important;
+  }
+  .vs-mockup { flex: unset !important; width: 100% !important; }
+  .vs-copy   { flex: unset !important; width: 100% !important; }
+}
+
+/* Vendor section CTA */
+.vs-cta {
+  display: inline-flex;
+  align-items: center;
+  padding: 14px 32px;
+  border-radius: 100px;
+  font-size: 15px;
+  font-weight: 700;
+  background: #1DB954;
+  color: #000;
+  text-decoration: none;
+  box-shadow: 0 0 28px rgba(29, 185, 84, 0.35);
+  transition: all 0.2s;
+  margin-bottom: 16px;
+}
+
+.vs-cta:hover {
+  background: #17a349;
+  transform: translateY(-2px);
+  box-shadow: 0 12px 40px rgba(29, 185, 84, 0.48);
+}
+
+/* Vendor mockup — no visible container, fade up on enter */
+.vs-mockup {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  overflow: visible;
+}
+
+.vs-mockup-figure {
+  position: relative;
+  width: 100%;
+  opacity: 0;
+  transform: translateY(56px);
+  filter: drop-shadow(0 28px 56px rgba(0, 0, 0, 0.55));
+}
+
+.vs-mockup-figure.vs-mockup-visible {
+  animation:
+    vsMockupEnter 1.35s cubic-bezier(0.22, 1, 0.36, 1) forwards,
+    hero-float 6s ease-in-out 1.6s infinite;
+}
+
+@keyframes vsMockupEnter {
+  from {
+    opacity: 0;
+    transform: translateY(56px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vs-mockup-figure.vs-mockup-visible {
+    opacity: 1;
+    transform: none;
+    animation: none;
+  }
 }
 
 /* Mobile bottom safe area */

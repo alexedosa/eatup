@@ -1,8 +1,9 @@
 "use client";
 import { useState } from "react";
-
 import Image from "next/image";
 import logo from "@/assets/logo/logo.png";
+import { startOnboarding, saveStep1Categories } from "@/lib/api";
+import { toast } from "react-hot-toast";
 
 const NIGERIAN_DISHES = [
   {
@@ -67,28 +68,59 @@ const NIGERIAN_DISHES = [
   },
 ];
 
-export default function Step1({ nextStep, updateFormData, formData }) {
+export default function Step1({ nextStep, updateFormData, formData, setOnboardingId, onboardingId }) {
   const [selected, setSelected] = useState(formData.categories || []);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const toggle = (name) => {
+    if (error) setError("");
     setSelected((prev) =>
       prev.includes(name) ? prev.filter((c) => c !== name) : [...prev, name],
     );
   };
 
-  const handleNext = () => {
-    updateFormData({ categories: selected });
-    nextStep();
+  const handleNext = async () => {
+    setLoading(true);
+    try {
+      let currentId = onboardingId;
+      if (!currentId) {
+        const data = await startOnboarding();
+        currentId = data.onboardingId;
+        setOnboardingId(currentId);
+      }
+
+      await saveStep1Categories(currentId, selected);
+      updateFormData({ categories: selected });
+      nextStep();
+    } catch (err) {
+      const msg = err.message || "Failed to save categories";
+      setError(msg);
+      toast.error(msg);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div className="auth-page">
+      <style>{`
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .spinner {
+          width: 16px; height: 16px;
+          border: 2px solid rgba(255,255,255,0.3);
+          border-top-color: white;
+          border-radius: 50%;
+          animation: spin 0.7s linear infinite;
+        }
+      `}</style>
       <div className="auth-blob auth-blob-1" />
       <div className="auth-blob auth-blob-2" />
 
       <div className="auth-card">
-        {/* Steps indicator — 5 steps */}
+        {/* Steps indicator — 6 steps now */}
         <div className="auth-steps">
+          <div className="auth-step-dot done"></div>
           <div className="auth-step-dot active"></div>
           <div className="auth-step-dot idle"></div>
           <div className="auth-step-dot idle"></div>
@@ -166,24 +198,36 @@ export default function Step1({ nextStep, updateFormData, formData }) {
           </p>
         )}
 
+        {error && (
+          <p className="text-[11px] font-bold mb-4 text-red-500 dark:text-orange-200/90 animate-in fade-in slide-in-from-top-1 text-center">
+            {error}
+          </p>
+        )}
+
         <button
           className="auth-btn auth-btn-primary"
           onClick={handleNext}
-          disabled={selected.length === 0}
+          disabled={selected.length === 0 || loading}
         >
-          Continue
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path d="M5 12h14M12 5l7 7-7 7" />
-          </svg>
+          {loading ? (
+            <span className="spinner" />
+          ) : (
+            <>
+              Continue
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M5 12h14M12 5l7 7-7 7" />
+              </svg>
+            </>
+          )}
         </button>
       </div>
     </div>

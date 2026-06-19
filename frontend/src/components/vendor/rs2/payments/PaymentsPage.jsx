@@ -16,6 +16,7 @@ export default function PaymentsPage() {
     stats,
     settlementInfo,
     transactions,
+    isLoading,
     searchQuery,
     setSearchQuery,
     statusFilter,
@@ -31,6 +32,14 @@ export default function PaymentsPage() {
     clearFilters,
     formatNaira
   } = usePaymentsManagement()
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center py-40">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-500" />
+      </div>
+    )
+  }
   
   return (
     <div className="w-full space-y-8 max-w-7xl mx-auto pb-10">

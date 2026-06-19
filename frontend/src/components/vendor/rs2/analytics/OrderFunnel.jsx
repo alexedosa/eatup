@@ -1,5 +1,5 @@
 // src/components/vendor/rs2/analytics/OrderFunnel.jsx
-import { formatNumber } from '@/data/mockAnalytics'
+import { formatNumber } from '@/lib/formatters'
 
 export default function OrderFunnel({ data }) {
   const stages = [

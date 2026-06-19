@@ -3,7 +3,9 @@ import { useState, useEffect } from 'react'
 import { AnimatePresence } from 'framer-motion'
 import LeftColumn from './LeftColumn'
 import RightColumn from './RightColumn'
+import { api } from '@/lib/api'
 import ZenMode from '../zen/ZenMode'
+
 
 export default function DashboardWrapper({ initialView = 'overview' }) {
   const [isExpanded, setIsExpanded] = useState(false)
@@ -12,11 +14,56 @@ export default function DashboardWrapper({ initialView = 'overview' }) {
   const [isStoreOpen, setIsStoreOpen] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
   const [isLoading, setIsLoading] = useState(true)
+  const [vendorData, setVendorData] = useState(null)
+  const [dashboardData, setDashboardData] = useState({
+    shops: [],
+    products: []
+  })
 
   useEffect(() => {
-    const timer = setTimeout(() => setIsLoading(false), 1500)
-    return () => clearTimeout(timer)
+    const fetchDashboardData = async () => {
+      try {
+        const profile = await api.vendor.getProfile()
+        setVendorData(profile)
+
+        // Fetch shops
+        const myShops = await api.shops.getMy()
+        let allProducts = []
+        
+        // Fetch products for the first shop if exists
+        if (myShops && myShops.length > 0) {
+           const productsRes = await api.products.listByShop(myShops[0]._id || myShops[0].id)
+           allProducts = productsRes?.products || productsRes || []
+        }
+
+        // Fetch orders
+        const ordersRes = await api.vendor.orders.list({ limit: 10 })
+        
+        // Fetch dashboard stats
+        let stats = null
+        try {
+          stats = await api.vendor.dashboardStats()
+        } catch (e) {
+          console.warn("Dashboard stats not available yet")
+        }
+
+        setDashboardData({
+          shops: myShops || [],
+          products: allProducts,
+          orders: ordersRes || [],
+          stats: stats
+        })
+
+      } catch (error) {
+        console.error("Failed to fetch dashboard data:", error)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchDashboardData()
   }, [])
+
 
   const handleSearch = (query) => {
     setSearchQuery(query)
@@ -26,6 +73,7 @@ export default function DashboardWrapper({ initialView = 'overview' }) {
   useEffect(() => {
     setActiveView(initialView)
   }, [initialView])
+
 
   const handleStoreToggle = () => {
     setIsStoreOpen(!isStoreOpen)
@@ -69,7 +117,10 @@ export default function DashboardWrapper({ initialView = 'overview' }) {
         searchQuery={searchQuery}
         onSearch={handleSearch}
         isLoading={isLoading}
+        vendorData={vendorData}
+        dashboardData={dashboardData}
       />
+
     </div>
   )
 }

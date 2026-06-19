@@ -3,11 +3,14 @@
 import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import logo from "@/assets/logo/logo.png";
+import { sendOnboardingOTP, verifyOnboardingOTP } from "@/lib/api";
+import { toast } from "react-hot-toast";
 
 const OTP_LENGTH = 6;
 const RESEND_TIMER = 30;
 
-export default function Step4({ nextStep, prevStep, updateFormData, formData }) {
+export default function Step4({ nextStep, prevStep, updateFormData, formData, onboardingId }) {
+  const [otpSessionId, setOtpSessionId] = useState(null);
   const [otp, setOtp] = useState(Array(OTP_LENGTH).fill(""));
   const [isVerifying, setIsVerifying] = useState(false);
   const [error, setError] = useState("");
@@ -25,10 +28,24 @@ export default function Step4({ nextStep, prevStep, updateFormData, formData }) 
     return () => clearTimeout(timer);
   }, [resendTimer]);
 
-  // Auto-focus first input on mount
+  // Auto-focus first input and send OTP on mount
   useEffect(() => {
     inputRefs.current[0]?.focus();
+    handleSendOtp();
   }, []);
+
+  const handleSendOtp = async () => {
+    if (!onboardingId) return;
+    try {
+      const target = formData.phone || formData.email;
+      const channel = formData.phone ? "sms" : "email";
+      const data = await sendOnboardingOTP(onboardingId, channel, target);
+      setOtpSessionId(data.otpSessionId);
+      toast.success(`OTP sent to ${target}`);
+    } catch (err) {
+      toast.error(err.message || "Failed to send OTP");
+    }
+  };
 
   const handleChange = (index, value) => {
     // Only allow digits
@@ -91,24 +108,28 @@ export default function Step4({ nextStep, prevStep, updateFormData, formData }) 
     setResendTimer(RESEND_TIMER);
     setCanResend(false);
     inputRefs.current[0]?.focus();
+    handleSendOtp();
   };
 
   const otpCode = otp.join("");
   const isComplete = otpCode.length === OTP_LENGTH;
 
   const handleVerify = async () => {
-    if (!isComplete) return;
+    if (!isComplete || !onboardingId) return;
 
     setIsVerifying(true);
     setError("");
 
-    // Simulated OTP verification
-    await new Promise((r) => setTimeout(r, 1500));
-
-    // For now, accept any 6-digit code
-    setIsVerifying(false);
-    updateFormData({ otpVerified: true });
-    nextStep();
+    try {
+      await verifyOnboardingOTP(onboardingId, otpSessionId, otpCode);
+      updateFormData({ otpVerified: true });
+      nextStep();
+    } catch (err) {
+      setError(err.message || "Invalid OTP");
+      toast.error(err.message || "Verification failed");
+    } finally {
+      setIsVerifying(false);
+    }
   };
 
   const maskedContact = formData.phone
@@ -117,12 +138,23 @@ export default function Step4({ nextStep, prevStep, updateFormData, formData }) 
 
   return (
     <div className="auth-page">
+      <style>{`
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .otp-spinner {
+          width: 14px; height: 14px;
+          border: 2px solid rgba(255,255,255,0.3);
+          border-top-color: white;
+          border-radius: 50%;
+          animation: spin 0.7s linear infinite;
+        }
+      `}</style>
       <div className="auth-blob auth-blob-1" />
       <div className="auth-blob auth-blob-2" />
 
       <div className="auth-card" style={{ textAlign: "center" }}>
-        {/* Steps indicator — 5 steps */}
+        {/* Steps indicator — 6 steps now */}
         <div className="auth-steps">
+          <div className="auth-step-dot done"></div>
           <div className="auth-step-dot done"></div>
           <div className="auth-step-dot done"></div>
           <div className="auth-step-dot done"></div>
@@ -165,8 +197,8 @@ export default function Step4({ nextStep, prevStep, updateFormData, formData }) 
         </div>
 
         {error && (
-          <p className="otp-error">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <p className="text-[11px] font-bold mt-4 text-red-500 dark:text-orange-200/90 animate-in fade-in slide-in-from-top-1 text-center flex items-center justify-center gap-1.5">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
               <circle cx="12" cy="12" r="10"/>
               <path d="M12 8v4M12 16h.01"/>
             </svg>

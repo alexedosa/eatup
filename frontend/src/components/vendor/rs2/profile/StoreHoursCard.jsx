@@ -2,7 +2,7 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Timer1, Edit2, Information, TickCircle, CloseCircle } from 'iconsax-reactjs'
-import { DAYS, formatTime } from '@/data/mockProfile'
+import { DAYS, formatTime } from '@/lib/profileUtils'
 
 export default function StoreHoursCard({ hours, onUpdate, onToggleDay }) {
   const [editingDay, setEditingDay] = useState(null)

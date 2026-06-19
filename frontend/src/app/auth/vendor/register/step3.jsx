@@ -3,12 +3,15 @@
 import { useState } from "react";
 import Image from "next/image";
 import logo from "@/assets/logo/logo.png";
+import { api } from "@/lib/api";
+import { toast } from "react-hot-toast";
 
 export default function Step3({
   nextStep,
   prevStep,
   updateFormData,
   formData,
+  onboardingId
 }) {
   const [info, setInfo] = useState({
     description: formData.description || "",
@@ -16,11 +19,16 @@ export default function Step3({
     documentImage: formData.documentImage || null,
     documentPreview: formData.documentPreview || null,
   });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  const set = (key) => (e) =>
+  const set = (key) => (e) => {
     setInfo((prev) => ({ ...prev, [key]: e.target.value }));
+    if (error) setError("");
+  };
 
   const handleImageUpload = (e) => {
+    if (error) setError("");
     const file = e.target.files[0];
     if (file) {
       const reader = new FileReader();
@@ -36,6 +44,7 @@ export default function Step3({
   };
 
   const removeImage = () => {
+    if (error) setError("");
     setInfo((prev) => ({
       ...prev,
       documentImage: null,
@@ -48,9 +57,39 @@ export default function Step3({
   const isValid =
     info.description.trim() && info.licenseNumber.trim() && info.documentImage;
 
-  const handleSubmit = () => {
-    updateFormData(info);
-    nextStep();
+  const handleSubmit = async () => {
+    if (!onboardingId) return;
+    setLoading(true);
+    setError("");
+    try {
+      // 1. Upload document first
+      const uploadRes = await api.vendorOnboarding.uploadCacDocument(info.documentImage);
+      
+      if (uploadRes.success) {
+        // 2. Save step 3 data
+        const body = {
+          description: info.description,
+          licenseNumber: info.licenseNumber,
+          document: {
+            fileKey: uploadRes.data.fileKey,
+            fileUrl: uploadRes.data.fileUrl,
+            fileType: info.documentImage.type
+          }
+        };
+        
+        const res = await api.vendorOnboarding.step3(onboardingId, body);
+        if (res.success) {
+          updateFormData(info);
+          nextStep();
+        }
+      }
+    } catch (err) {
+      const msg = err.message || "Failed to save verification profile";
+      setError(msg);
+      toast.error(msg);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -96,8 +135,9 @@ export default function Step3({
       )}
 
       <div className="auth-card">
-        {/* Steps indicator */}
+        {/* Steps indicator — 6 steps now */}
         <div className="auth-steps">
+          <div className="auth-step-dot done"></div>
           <div className="auth-step-dot done"></div>
           <div className="auth-step-dot done"></div>
           <div className="auth-step-dot active"></div>
@@ -264,6 +304,12 @@ export default function Step3({
           )}
         </div>
 
+        {error && (
+          <p className="text-[11px] font-bold mb-4 text-red-500 dark:text-orange-200/90 animate-in fade-in slide-in-from-top-1 text-center">
+            {error}
+          </p>
+        )}
+
         <div className="auth-btn-row" style={{ marginTop: 8 }}>
           <button className="auth-btn auth-btn-ghost" onClick={prevStep}>
             <svg
@@ -283,21 +329,27 @@ export default function Step3({
           <button
             className="auth-btn auth-btn-primary"
             onClick={handleSubmit}
-            disabled={!isValid}
+            disabled={!isValid || loading}
           >
-            Continue
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M5 12h14M12 5l7 7-7 7" />
-            </svg>
+            {loading ? (
+              <span className="spinner" />
+            ) : (
+              <>
+                Continue
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M5 12h14M12 5l7 7-7 7" />
+                </svg>
+              </>
+            )}
           </button>
         </div>
       </div>

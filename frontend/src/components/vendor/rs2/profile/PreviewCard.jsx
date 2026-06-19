@@ -1,5 +1,5 @@
 // src/components/vendor/rs2/profile/PreviewCard.jsx
-import { formatTime } from "@/data/mockProfile";
+import { formatTime } from "@/lib/profileUtils";
 import { Timer1, Star1, Location, Shop } from "iconsax-reactjs";
 import Image from "next/image";
 

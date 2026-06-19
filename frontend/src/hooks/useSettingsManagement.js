@@ -1,17 +1,17 @@
 // src/hooks/useSettingsManagement.js
 import { useState, useCallback, useEffect } from 'react'
-import { MOCK_SETTINGS } from '@/data/mockSettings'
+import { INITIAL_SETTINGS_STATE } from '@/lib/settingsUtils'
 import toast from 'react-hot-toast'
 
 const STORAGE_KEY = 'eatup_vendor_settings'
 
 function loadSettings() {
-  if (typeof window === 'undefined') return MOCK_SETTINGS
+  if (typeof window === 'undefined') return INITIAL_SETTINGS_STATE
   try {
     const stored = localStorage.getItem(STORAGE_KEY)
     if (stored) return JSON.parse(stored)
   } catch {}
-  return MOCK_SETTINGS
+  return INITIAL_SETTINGS_STATE
 }
 
 export function useSettingsManagement() {
@@ -174,7 +174,7 @@ export function useSettingsManagement() {
   // Reset to defaults
   const resetToDefaults = useCallback(() => {
     if (confirm('Reset all settings to default values? This cannot be undone.')) {
-      setSettings(MOCK_SETTINGS)
+      setSettings(INITIAL_SETTINGS_STATE)
       toast.success('Settings reset to defaults')
     }
   }, [])

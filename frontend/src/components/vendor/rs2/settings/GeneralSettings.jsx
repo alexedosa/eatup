@@ -1,5 +1,5 @@
 // src/components/vendor/rs2/settings/GeneralSettings.jsx
-import { LANGUAGES, TIMEZONES } from '@/data/mockSettings'
+import { LANGUAGES, TIMEZONES } from '@/lib/settingsUtils'
 import { Setting2, Monitor, LampOn } from 'iconsax-reactjs'
 
 export default function GeneralSettings({ settings, onUpdate }) {

@@ -1,8 +1,8 @@
-import { QUICK_METRICS } from '@/data/vendorOverviewData'
+import { Shop, Box, ClipboardText, Danger } from 'iconsax-reactjs'
 import GlassCard from '../../shared/GlassCard'
 import Skeleton from '../../shared/Skeleton'
 
-export default function MetricsRow({ onMetricClick, isLoading }) {
+export default function MetricsRow({ onMetricClick, isLoading, dashboardData }) {
   
   const colorClasses = {
     amber: 'from-amber-100/50 to-amber-50/50 text-amber-600',
@@ -10,8 +10,22 @@ export default function MetricsRow({ onMetricClick, isLoading }) {
     red: 'from-red-100/50 to-red-50/50 text-red-500',
     green: 'from-green-100/50 to-green-50/50 text-green-600'
   }
+
+  const shopsCount = dashboardData?.shops?.length || 0;
+  const productsCount = dashboardData?.products?.length || 0;
+  const ordersCount = dashboardData?.stats?.totalOrders || dashboardData?.orders?.length || 0;
+  const cancelledOrders = dashboardData?.stats?.cancelledOrders || 0;
+
+  const dynamicMetrics = [
+    { id: 'total_shops', label: 'My Shops', value: shopsCount, change: '0', icon: <Shop variant="Outline" />, color: 'green' },
+    { id: 'total_products', label: 'Total Products', value: productsCount, change: '0', icon: <Box variant="Outline" />, color: 'blue' },
+    { id: 'total_orders', label: 'Total Orders', value: ordersCount, change: '0', icon: <ClipboardText variant="Outline" />, color: 'amber' },
+    { id: 'cancelled_orders', label: 'Cancelled Orders', value: cancelledOrders, change: '0', icon: <Danger variant="Outline" />, color: 'red' }
+  ]
+
   
   return (
+
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5">
       {isLoading ? (
         [...Array(4)].map((_, i) => (
@@ -26,7 +40,7 @@ export default function MetricsRow({ onMetricClick, isLoading }) {
           </GlassCard>
         ))
       ) : (
-        QUICK_METRICS.map((metric) => (
+        dynamicMetrics.map((metric) => (
         <GlassCard
           key={metric.id}
           onClick={() => onMetricClick?.(metric.id)}

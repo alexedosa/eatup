@@ -1,12 +1,17 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { toast } from "react-hot-toast";
+import { api } from "@/lib/api";
 import logo from "@/assets/logo/logo.png";
+
+const SIGNUP_STORAGE_KEY = "customerSignup";
 
 export default function CustomerCompleteProfilePage() {
   const router = useRouter();
+  const [signupData, setSignupData] = useState(null);
   const [form, setForm] = useState({
     firstName: "",
     lastName: "",
@@ -14,17 +19,71 @@ export default function CustomerCompleteProfilePage() {
     address: "",
   });
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  const set = (key) => (e) => setForm((p) => ({ ...p, [key]: e.target.value }));
+  useEffect(() => {
+    try {
+      const raw = sessionStorage.getItem(SIGNUP_STORAGE_KEY);
+      if (!raw) {
+        router.replace("/auth/customer/signup");
+        return;
+      }
+      setSignupData(JSON.parse(raw));
+    } catch {
+      router.replace("/auth/customer/signup");
+    }
+  }, [router]);
+
+  const set = (key) => (e) => {
+    setError("");
+    setForm((p) => ({ ...p, [key]: e.target.value }));
+  };
 
   const isValid = form.firstName.trim() && form.lastName.trim() && form.phone.trim();
 
   const handleSave = async () => {
+    if (!signupData?.registrationToken || !signupData?.password) {
+      setError("Your signup session expired. Please start again.");
+      toast.error("Your signup session expired. Please start again.");
+      router.push("/auth/customer/signup");
+      return;
+    }
+
     setLoading(true);
-    await new Promise((r) => setTimeout(r, 1000));
-    setLoading(false);
-    router.push("/auth/customer/app-download");
+    setError("");
+    try {
+      await api.auth.createAccount(signupData.registrationToken, {
+        firstName: form.firstName.trim(),
+        lastName: form.lastName.trim(),
+        phone: form.phone.trim(),
+        password: signupData.password,
+        role: "USER",
+        addresses: form.address.trim()
+          ? [{ address: form.address.trim(), latitude: 0, longitude: 0 }]
+          : [],
+      });
+
+      sessionStorage.removeItem(SIGNUP_STORAGE_KEY);
+      toast.success("Account created successfully!");
+      router.push("/auth/customer/app-download");
+    } catch (err) {
+      const msg = err.message || "Could not create your account. Please try again.";
+      setError(msg);
+      toast.error(msg);
+    } finally {
+      setLoading(false);
+    }
   };
+
+  if (!signupData) {
+    return (
+      <div className="auth-page">
+        <div className="min-h-[40vh] flex items-center justify-center">
+          <span className="spinner" />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="auth-page">
@@ -74,13 +133,27 @@ export default function CustomerCompleteProfilePage() {
 
           <div className="auth-field">
             <label className="auth-label">Phone number</label>
-            <input className="auth-input" placeholder="+234 080 0000 0000" value={form.phone} onChange={set("phone")} type="tel" />
+            <input
+              className="auth-input"
+              placeholder="080 0000 0000"
+              value={form.phone}
+              onChange={set("phone")}
+              type="tel"
+              required
+              autoComplete="tel"
+            />
           </div>
 
           <div className="auth-field">
             <label className="auth-label">Delivery address <span style={{ color: "rgba(255,255,255,0.2)", fontWeight: 400 }}>(optional)</span></label>
             <input className="auth-input" placeholder="e.g. 12 Allen Ave, Ikeja, Lagos" value={form.address} onChange={set("address")} />
           </div>
+
+          {error && (
+            <p className="text-[11px] font-bold mt-2 text-red-500 dark:text-orange-200/90 text-center">
+              {error}
+            </p>
+          )}
 
           <button
             className="auth-btn auth-btn-primary"

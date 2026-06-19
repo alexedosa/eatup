@@ -2,7 +2,7 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { Shop, Sms, Call, Global, DocumentText, Edit2, TickCircle, CloseCircle } from 'iconsax-reactjs'
-import { validateEmail, validatePhone } from '@/data/mockProfile'
+import { validateEmail, validatePhone } from '@/lib/profileUtils'
 
 export default function StoreInfoCard({ profile, onUpdate }) {
   const [isEditing, setIsEditing] = useState(false)

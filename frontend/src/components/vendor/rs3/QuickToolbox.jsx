@@ -1,15 +1,49 @@
-import { METRICS, formatCurrency } from '@/data/vendorMetrics'
+import { Box, WalletMoney, Star } from 'iconsax-reactjs'
 import GlassCard from '../shared/GlassCard'
 
-export default function QuickToolbox({ onMetricClick }) {
+export default function QuickToolbox({ onMetricClick, dashboardData }) {
+  
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat('en-NG', {
+      style: 'currency',
+      currency: 'NGN',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
+    }).format(amount)
+  }
+
+  const stats = dashboardData?.stats || {};
   
   const metricsArray = [
-    METRICS.ordersToday,
-    METRICS.revenueWeek,
-    METRICS.rating
+    {
+      label: 'Orders Today',
+      value: stats.totalOrders || 0,
+      change: stats.orderGrowth || 0,
+      changeType: (stats.orderGrowth || 0) >= 0 ? 'up' : 'down',
+      icon: <Box variant="Outline" />,
+      onClick: 'orders'
+    },
+    {
+      label: 'Revenue This Week',
+      value: stats.weeklyRevenue || 0,
+      change: stats.revenueGrowth || 0,
+      changeType: (stats.revenueGrowth || 0) >= 0 ? 'up' : 'down',
+      icon: <WalletMoney variant="Outline" />,
+      onClick: 'analytics',
+      isCurrency: true
+    },
+    {
+      label: 'Average Rating',
+      value: stats.averageRating || 0,
+      change: 0,
+      changeType: 'neutral',
+      icon: <Star variant="Bold" className="text-amber-400" />,
+      onClick: 'reviews',
+      totalReviews: stats.totalReviews || 0
+    }
   ]
   
-  const getChangeIcon = (changeType, change) => {
+  const getChangeIcon = (changeType) => {
     if (changeType === 'up') return '↑'
     if (changeType === 'down') return '↓'
     return '•'
@@ -22,11 +56,8 @@ export default function QuickToolbox({ onMetricClick }) {
   }
   
   const formatValue = (metric) => {
-    if (metric.label === 'Revenue This Week') {
+    if (metric.isCurrency) {
       return formatCurrency(metric.value)
-    }
-    if (metric.label === 'Average Rating') {
-      return `${metric.value} ${metric.suffix}`
     }
     return metric.value.toLocaleString()
   }
@@ -51,14 +82,14 @@ export default function QuickToolbox({ onMetricClick }) {
               {/* Change indicator */}
               {metric.change !== 0 && (
                 <div className={`flex items-center gap-1 mt-1 text-xs font-medium ${getChangeColor(metric.changeType)}`}>
-                  <span>{getChangeIcon(metric.changeType, metric.change)}</span>
+                  <span>{getChangeIcon(metric.changeType)}</span>
                   <span>{Math.abs(metric.change)}%</span>
                   <span className="text-stone-400 dark:text-stone-500 text-[10px]">vs yesterday</span>
                 </div>
               )}
               
               {/* Reviews count for rating */}
-              {metric.totalReviews && (
+              {metric.totalReviews > 0 && (
                 <p className="text-[10px] text-stone-400 dark:text-stone-500 mt-1">
                   From {metric.totalReviews.toLocaleString()} reviews
                 </p>

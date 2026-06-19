@@ -17,20 +17,27 @@ import { ExportCurve } from 'iconsax-reactjs'
 
 export default function AnalyticsPage() {
   const [mounted, setMounted] = useState(false)
-  const { data, formatNaira, formatNumber, presets, dateRange, handlePresetChange } = useAnalytics()
+  const { data, isLoading, formatNaira, formatNumber, presets, dateRange, handlePresetChange } = useAnalytics()
 
   useEffect(() => {
     setMounted(true)
   }, [])
 
-  if (!mounted) return <div className="p-8 text-stone-400">Loading Analytics...</div>
+  if (!mounted || isLoading) return (
+    <div className="flex justify-center items-center py-40">
+      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-500"></div>
+    </div>
+  )
   
-  const metrics = data.metrics
+  if (!data) return <div className="p-8 text-stone-400">Failed to load analytics data.</div>
   
-  const dailyDataFormatted = data.dailyRevenue.map(d => ({
+  const metrics = data.metrics || {}
+  
+  const dailyDataFormatted = (data.dailyRevenue || []).map(d => ({
     ...d,
     date: new Date(d.date).toLocaleDateString('en-US', { weekday: 'short' })
   }))
+
   
   return (
     <div className="space-y-8 max-w-7xl mx-auto pb-20">
@@ -61,53 +68,53 @@ export default function AnalyticsPage() {
       {/* KPI Cards Row */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
         <KPICard
-          label={metrics.revenue.label}
-          value={metrics.revenue.current}
-          previous={metrics.revenue.previous}
-          change={metrics.revenue.change}
-          trend={metrics.revenue.trend}
+          label={metrics.revenue?.label || "Total Revenue"}
+          value={metrics.revenue?.current || 0}
+          previous={metrics.revenue?.previous || 0}
+          change={metrics.revenue?.change || 0}
+          trend={metrics.revenue?.trend || "up"}
           prefix="₦"
           formatValue={formatNaira}
         />
         <KPICard
-          label={metrics.orders.label}
-          value={metrics.orders.current}
-          previous={metrics.orders.previous}
-          change={metrics.orders.change}
-          trend={metrics.orders.trend}
+          label={metrics.orders?.label || "Total Orders"}
+          value={metrics.orders?.current || 0}
+          previous={metrics.orders?.previous || 0}
+          change={metrics.orders?.change || 0}
+          trend={metrics.orders?.trend || "up"}
           formatValue={formatNumber}
         />
         <KPICard
-          label={metrics.avgOrderValue.label}
-          value={metrics.avgOrderValue.current}
-          previous={metrics.avgOrderValue.previous}
-          change={metrics.avgOrderValue.change}
-          trend={metrics.avgOrderValue.trend}
+          label={metrics.avgOrderValue?.label || "Avg Order Value"}
+          value={metrics.avgOrderValue?.current || 0}
+          previous={metrics.avgOrderValue?.previous || 0}
+          change={metrics.avgOrderValue?.change || 0}
+          trend={metrics.avgOrderValue?.trend || "up"}
           prefix="₦"
           formatValue={formatNaira}
         />
         <KPICard
-          label={metrics.conversionRate.label}
-          value={metrics.conversionRate.current}
-          previous={metrics.conversionRate.previous}
-          change={metrics.conversionRate.change}
-          trend={metrics.conversionRate.trend}
+          label={metrics.conversionRate?.label || "Conversion Rate"}
+          value={metrics.conversionRate?.current || 0}
+          previous={metrics.conversionRate?.previous || 0}
+          change={metrics.conversionRate?.change || 0}
+          trend={metrics.conversionRate?.trend || "up"}
           suffix="%"
         />
         <KPICard
-          label={metrics.newCustomers.label}
-          value={metrics.newCustomers.current}
-          previous={metrics.newCustomers.previous}
-          change={metrics.newCustomers.change}
-          trend={metrics.newCustomers.trend}
+          label={metrics.newCustomers?.label || "New Customers"}
+          value={metrics.newCustomers?.current || 0}
+          previous={metrics.newCustomers?.previous || 0}
+          change={metrics.newCustomers?.change || 0}
+          trend={metrics.newCustomers?.trend || "up"}
           formatValue={formatNumber}
         />
         <KPICard
-          label={metrics.retentionRate.label}
-          value={metrics.retentionRate.current}
-          previous={metrics.retentionRate.previous}
-          change={metrics.retentionRate.change}
-          trend={metrics.retentionRate.trend}
+          label={metrics.retentionRate?.label || "Retention Rate"}
+          value={metrics.retentionRate?.current || 0}
+          previous={metrics.retentionRate?.previous || 0}
+          change={metrics.retentionRate?.change || 0}
+          trend={metrics.retentionRate?.trend || "up"}
           suffix="%"
         />
       </div>
@@ -116,26 +123,27 @@ export default function AnalyticsPage() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <RevenueChart data={dailyDataFormatted} />
         <ComparisonChart
-          current={data.weeklyComparison.current}
-          previous={data.weeklyComparison.previous}
+          current={data.weeklyComparison?.current || []}
+          previous={data.weeklyComparison?.previous || []}
           title="Week Over Week Comparison"
         />
       </div>
       
       {/* Second Row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <CategoryDonutChart data={data.categoryRevenue} />
-        <TopItemsChart items={data.topItems} />
+        <CategoryDonutChart data={data.categoryRevenue || []} />
+        <TopItemsChart items={data.topItems || []} />
       </div>
       
       {/* Third Row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <PeakHoursHeatmap data={data.heatmapData} />
-        <OrderFunnel data={data.funnel} />
+        <PeakHoursHeatmap data={data.heatmapData || []} />
+        <OrderFunnel data={data.funnel || { views: 0, cart: 0, checkout: 0, completed: 0 }} />
       </div>
       
       {/* Insights Panel */}
-      <InsightsPanel insights={data.insights} />
+      <InsightsPanel insights={data.insights || []} />
     </div>
   )
 }
+

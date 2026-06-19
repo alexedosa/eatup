@@ -1,6 +1,6 @@
 // src/components/vendor/rs2/analytics/CategoryDonutChart.jsx
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts'
-import { formatNaira } from '@/data/mockAnalytics'
+import { formatNaira } from '@/lib/formatters'
 
 export default function CategoryDonutChart({ data }) {
   const RADIAN = Math.PI / 180

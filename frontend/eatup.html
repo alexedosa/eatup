@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EatUp — Nigerian Food, Delivered.</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --orange: #FF6B2C;
+      --orange-hot: #FF4500;
+      --black: #0A0A0A;
+      --surface: #111111;
+      --surface2: #171717;
+      --white: #FFFFFF;
+      --muted: #888888;
+      --vendor-green: #1DB954;
+      --vendor-bg: #071A0E;
+      --rider-blue: #3B82F6;
+      --rider-bg: #050D1A;
+      --font-display: 'Instrument Sans', sans-serif;
+      --font-body: 'Inter', sans-serif;
+    }
+    html { scroll-behavior: smooth; }
+    body { background: var(--black); color: var(--white); font-family: var(--font-body); overflow-x: hidden; }
+
+    /* NAV */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 20px 48px;
+      background: rgba(10,10,10,0.7);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      transition: background 0.3s;
+    }
+    .nav-logo { font-family: var(--font-display); font-size: 22px; font-weight: 700; color: var(--white); letter-spacing: -0.5px; }
+    .nav-logo span { color: var(--orange); }
+    .nav-links { display: flex; gap: 36px; list-style: none; }
+    .nav-links a { color: rgba(255,255,255,0.6); text-decoration: none; font-size: 14px; font-weight: 500; transition: color 0.2s; }
+    .nav-links a:hover { color: var(--white); }
+    .nav-cta { background: var(--orange); color: var(--white); border: none; padding: 10px 22px; border-radius: 100px; font-family: var(--font-body); font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+    .nav-cta:hover { background: var(--orange-hot); transform: scale(1.03); }
+
+    /* HERO */
+    .hero { min-height: 100vh; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; padding: 120px 48px 80px; }
+    .hero-bg-glow { position: absolute; width: 700px; height: 700px; background: radial-gradient(circle, rgba(255,107,44,0.13) 0%, transparent 70%); top: 50%; left: 50%; transform: translate(-50%, -55%); pointer-events: none; }
+    .hero-content { text-align: center; position: relative; z-index: 2; max-width: 820px; }
+    .hero-eyebrow { display: inline-flex; align-items: center; gap: 8px; background: rgba(255,107,44,0.12); border: 1px solid rgba(255,107,44,0.25); border-radius: 100px; padding: 6px 14px; font-size: 12px; font-weight: 600; color: var(--orange); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 32px; }
+    .eyebrow-dot { width: 6px; height: 6px; background: var(--orange); border-radius: 50%; animation: pulse 2s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(0.8)} }
+    .hero-headline { font-family: var(--font-display); font-size: clamp(48px, 7vw, 88px); font-weight: 700; line-height: 1.0; letter-spacing: -2.5px; margin-bottom: 24px; }
+    .hero-headline em { font-style: normal; color: var(--orange); }
+    .hero-sub { font-size: clamp(16px, 2vw, 18px); color: rgba(255,255,255,0.55); line-height: 1.7; max-width: 520px; margin: 0 auto 44px; }
+    .hero-actions { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+    .btn-primary { background: var(--orange); color: var(--white); border: none; padding: 15px 32px; border-radius: 100px; font-family: var(--font-body); font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 8px; }
+    .btn-primary:hover { background: var(--orange-hot); transform: translateY(-2px); box-shadow: 0 12px 40px rgba(255,107,44,0.35); }
+    .btn-ghost { background: transparent; color: var(--white); border: 1px solid rgba(255,255,255,0.2); padding: 15px 32px; border-radius: 100px; font-family: var(--font-body); font-size: 15px; font-weight: 500; cursor: pointer; transition: all 0.2s; }
+    .btn-ghost:hover { border-color: rgba(255,255,255,0.5); background: rgba(255,255,255,0.05); }
+    .food-float { position: absolute; font-size: 56px; opacity: 0; pointer-events: none; filter: drop-shadow(0 8px 24px rgba(0,0,0,0.5)); z-index: 1; }
+    .hero-stats { display: flex; gap: 48px; justify-content: center; margin-top: 56px; padding-top: 56px; border-top: 1px solid rgba(255,255,255,0.07); flex-wrap: wrap; }
+    .stat-num { font-family: var(--font-display); font-size: 32px; font-weight: 700; }
+    .stat-num span { color: var(--orange); }
+    .stat-label { font-size: 11px; color: var(--muted); margin-top: 4px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; }
+
+    /* TICKER */
+    .ticker-wrap { overflow: hidden; padding: 18px 0; background: var(--surface); border-top: 1px solid rgba(255,255,255,0.05); border-bottom: 1px solid rgba(255,255,255,0.05); }
+    .ticker-track { display: flex; width: max-content; animation: ticker 28s linear infinite; }
+    .ticker-item { display: flex; align-items: center; gap: 10px; padding: 0 32px; font-size: 14px; font-weight: 500; color: rgba(255,255,255,0.45); white-space: nowrap; border-right: 1px solid rgba(255,255,255,0.07); }
+    .ticker-item span { font-size: 20px; }
+    @keyframes ticker { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
+
+    /* FOOD SECTION */
+    .food-slide-section { padding: 120px 48px; position: relative; overflow: hidden; }
+    .section-eyebrow { font-size: 12px; font-weight: 600; color: var(--orange); letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 16px; }
+    .section-headline { font-family: var(--font-display); font-size: clamp(36px, 5vw, 56px); font-weight: 700; line-height: 1.05; letter-spacing: -1.5px; margin-bottom: 16px; }
+    .section-sub { font-size: 16px; color: rgba(255,255,255,0.5); line-height: 1.7; max-width: 420px; margin-bottom: 48px; }
+    .food-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-top: 20px; }
+    .food-card { background: var(--surface); border: 1px solid rgba(255,255,255,0.06); border-radius: 20px; overflow: hidden; transition: transform 0.3s, border-color 0.3s; cursor: pointer; }
+    .food-card:hover { transform: translateY(-6px); border-color: rgba(255,107,44,0.3); }
+    .food-card-img { width: 100%; aspect-ratio: 1; display: flex; align-items: center; justify-content: center; font-size: 72px; background: var(--surface2); }
+    .food-card-body { padding: 16px; }
+    .food-card-name { font-family: var(--font-display); font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+    .food-card-price { font-size: 13px; color: var(--orange); font-weight: 600; }
+    .food-card-restaurant { font-size: 12px; color: var(--muted); margin-top: 6px; }
+
+    /* HOW IT WORKS */
+    .how-section { padding: 120px 48px; background: var(--surface); }
+    .how-inner { max-width: 1200px; margin: 0 auto; }
+    .how-steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; margin-top: 64px; }
+    .how-step { padding: 48px 40px; background: var(--surface2); position: relative; }
+    .how-step:first-child { border-radius: 24px 0 0 24px; }
+    .how-step:last-child { border-radius: 0 24px 24px 0; }
+    .how-step-num { font-family: var(--font-display); font-size: 80px; font-weight: 700; color: rgba(255,107,44,0.08); line-height: 1; margin-bottom: 24px; letter-spacing: -4px; }
+    .how-step-icon { font-size: 36px; margin-bottom: 20px; }
+    .how-step-title { font-family: var(--font-display); font-size: 22px; font-weight: 700; margin-bottom: 10px; }
+    .how-step-desc { font-size: 14px; color: rgba(255,255,255,0.5); line-height: 1.7; }
+
+    /* AUDIENCE SHARED */
+    .audience-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center; max-width: 1200px; margin: 0 auto; }
+    .audience-layout.reverse { direction: rtl; }
+    .audience-layout.reverse > * { direction: ltr; }
+    .audience-tag { display: inline-flex; align-items: center; gap: 8px; padding: 5px 14px; border-radius: 100px; font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 24px; }
+    .tag-customer { background: rgba(255,107,44,0.12); color: var(--orange); border: 1px solid rgba(255,107,44,0.2); }
+    .tag-vendor { background: rgba(29,185,84,0.1); color: var(--vendor-green); border: 1px solid rgba(29,185,84,0.2); }
+    .tag-rider { background: rgba(59,130,246,0.1); color: var(--rider-blue); border: 1px solid rgba(59,130,246,0.2); }
+    .audience-headline { font-family: var(--font-display); font-size: clamp(32px, 4vw, 48px); font-weight: 700; line-height: 1.08; letter-spacing: -1.5px; margin-bottom: 20px; }
+    .audience-desc { font-size: 16px; color: rgba(255,255,255,0.5); line-height: 1.75; margin-bottom: 32px; }
+    .feature-list { list-style: none; display: flex; flex-direction: column; gap: 12px; margin-bottom: 36px; }
+    .feature-list li { display: flex; align-items: center; gap: 12px; font-size: 14px; color: rgba(255,255,255,0.7); font-weight: 500; }
+    .feature-dot { width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; flex-shrink: 0; }
+    .dot-orange { background: rgba(255,107,44,0.2); color: var(--orange); }
+    .dot-green { background: rgba(29,185,84,0.15); color: var(--vendor-green); }
+    .dot-blue { background: rgba(59,130,246,0.15); color: var(--rider-blue); }
+
+    /* CUSTOMER SECTION */
+    .audience-customer { padding: 120px 48px; background: var(--black); position: relative; overflow: hidden; }
+    .audience-customer::before { content:''; position:absolute; width:600px; height:600px; background:radial-gradient(circle, rgba(255,107,44,0.07) 0%, transparent 70%); top:50%; right:-100px; transform:translateY(-50%); pointer-events:none; }
+
+    /* Phone mockup */
+    .phone-mockup { position: relative; display: flex; justify-content: center; }
+    .phone-frame { width: 260px; height: 520px; background: #1A1A1A; border-radius: 40px; border: 2px solid rgba(255,255,255,0.1); overflow: hidden; position: relative; box-shadow: 0 40px 80px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.08); }
+    .phone-notch { position: absolute; top: 12px; left: 50%; transform: translateX(-50%); width: 80px; height: 22px; background: #111; border-radius: 100px; z-index: 2; }
+    .phone-screen { width: 100%; height: 100%; padding: 52px 16px 20px; }
+    .phone-header-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
+    .phone-greeting { font-size: 11px; color: rgba(255,255,255,0.4); }
+    .phone-greeting strong { display: block; font-size: 14px; color: var(--white); font-weight: 600; font-family: var(--font-display); }
+    .phone-avatar { width: 28px; height: 28px; border-radius: 50%; background: linear-gradient(135deg, var(--orange), #FF4500); display: flex; align-items: center; justify-content: center; font-size: 14px; }
+    .phone-search { background: rgba(255,255,255,0.07); border-radius: 10px; padding: 8px 12px; font-size: 11px; color: rgba(255,255,255,0.3); margin-bottom: 16px; display: flex; align-items: center; gap: 6px; }
+    .phone-cats { display: flex; gap: 6px; margin-bottom: 16px; overflow: hidden; }
+    .phone-cat { background: rgba(255,107,44,0.1); color: var(--orange); border-radius: 100px; padding: 4px 10px; font-size: 10px; font-weight: 600; white-space: nowrap; border: 1px solid rgba(255,107,44,0.2); }
+    .phone-cat.active { background: var(--orange); color: white; }
+    .phone-food-cards { display: flex; flex-direction: column; gap: 8px; }
+    .phone-food-card { background: rgba(255,255,255,0.04); border-radius: 12px; padding: 10px; display: flex; gap: 10px; align-items: center; border: 1px solid rgba(255,255,255,0.06); }
+    .phone-food-emoji { font-size: 28px; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.04); border-radius: 10px; flex-shrink: 0; }
+    .phone-food-info { flex: 1; }
+    .phone-food-name { font-size: 11px; font-weight: 600; color: var(--white); font-family: var(--font-display); }
+    .phone-food-rest { font-size: 9px; color: rgba(255,255,255,0.35); margin: 2px 0; }
+    .phone-food-price { font-size: 11px; font-weight: 700; color: var(--orange); }
+    .phone-add-btn { width: 22px; height: 22px; background: var(--orange); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; color: white; flex-shrink: 0; }
+    .float-food { position: absolute; filter: drop-shadow(0 4px 16px rgba(0,0,0,0.5)); }
+
+    /* VENDOR SECTION */
+    .audience-vendor { padding: 120px 48px; background: var(--vendor-bg); position: relative; overflow: hidden; }
+    .audience-vendor::before { content:''; position:absolute; width:600px; height:600px; background:radial-gradient(circle, rgba(29,185,84,0.07) 0%, transparent 70%); top:50%; left:-100px; transform:translateY(-50%); pointer-events:none; }
+    .dashboard-mockup { background: #0F1A12; border: 1px solid rgba(29,185,84,0.15); border-radius: 20px; overflow: hidden; box-shadow: 0 40px 80px rgba(0,0,0,0.5); }
+    .dash-topbar { background: #0A1209; padding: 14px 20px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(29,185,84,0.1); }
+    .dash-logo { font-family: var(--font-display); font-size: 13px; font-weight: 700; color: var(--vendor-green); }
+    .dash-store { font-size: 11px; color: rgba(255,255,255,0.4); display: flex; align-items: center; gap: 6px; }
+    .dash-online { width: 7px; height: 7px; background: var(--vendor-green); border-radius: 50%; animation: pulse 2s infinite; }
+    .dash-body { display: grid; grid-template-columns: 130px 1fr; min-height: 320px; }
+    .dash-sidebar { background: #0A1209; padding: 16px 0; border-right: 1px solid rgba(29,185,84,0.08); }
+    .dash-nav-item { padding: 9px 14px; font-size: 11px; color: rgba(255,255,255,0.35); display: flex; align-items: center; gap: 8px; font-weight: 500; }
+    .dash-nav-item.active { color: var(--vendor-green); background: rgba(29,185,84,0.08); border-right: 2px solid var(--vendor-green); }
+    .dash-main { padding: 18px; }
+    .dash-kpi-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 14px; }
+    .dash-kpi { background: rgba(29,185,84,0.05); border: 1px solid rgba(29,185,84,0.1); border-radius: 10px; padding: 12px; }
+    .dash-kpi-label { font-size: 9px; color: rgba(255,255,255,0.35); text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600; margin-bottom: 4px; }
+    .dash-kpi-val { font-family: var(--font-display); font-size: 17px; font-weight: 700; color: var(--white); }
+    .dash-kpi-val small { font-size: 11px; color: var(--vendor-green); }
+    .dash-order-list { display: flex; flex-direction: column; gap: 6px; }
+    .dash-order { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); border-radius: 8px; padding: 8px 12px; display: flex; align-items: center; justify-content: space-between; font-size: 10px; gap: 8px; }
+    .dash-order-id { color: rgba(255,255,255,0.4); }
+    .dash-order-name { color: var(--white); font-weight: 600; }
+    .dash-order-amount { color: var(--vendor-green); font-weight: 700; }
+    .dash-order-status { padding: 2px 8px; border-radius: 100px; font-size: 9px; font-weight: 600; white-space: nowrap; }
+    .status-new { background: rgba(255,107,44,0.15); color: var(--orange); }
+    .status-prep { background: rgba(255,200,0,0.1); color: #FFD700; }
+    .status-done { background: rgba(29,185,84,0.1); color: var(--vendor-green); }
+
+    /* RIDER SECTION */
+    .audience-rider { padding: 120px 48px; background: var(--rider-bg); position: relative; overflow: hidden; }
+    .audience-rider::before { content:''; position:absolute; width:600px; height:600px; background:radial-gradient(circle, rgba(59,130,246,0.07) 0%, transparent 70%); top:50%; right:-100px; transform:translateY(-50%); pointer-events:none; }
+    .rider-mockup { background: #080D14; border: 1px solid rgba(59,130,246,0.15); border-radius: 20px; padding: 28px; box-shadow: 0 40px 80px rgba(0,0,0,0.5); }
+    .rider-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+    .rider-name { font-family: var(--font-display); font-size: 16px; font-weight: 700; }
+    .rider-status-toggle { background: rgba(59,130,246,0.12); border: 1px solid rgba(59,130,246,0.25); border-radius: 100px; padding: 5px 14px; font-size: 11px; font-weight: 600; color: var(--rider-blue); display: flex; align-items: center; gap: 6px; }
+    .rider-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 22px; }
+    .rider-stat { background: rgba(59,130,246,0.05); border: 1px solid rgba(59,130,246,0.1); border-radius: 12px; padding: 14px; text-align: center; }
+    .rider-stat-val { font-family: var(--font-display); font-size: 18px; font-weight: 700; }
+    .rider-stat-val small { color: var(--rider-blue); font-size: 12px; }
+    .rider-stat-label { font-size: 10px; color: rgba(255,255,255,0.35); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 4px; }
+    .rider-current-delivery { background: rgba(59,130,246,0.05); border: 1px solid rgba(59,130,246,0.13); border-radius: 14px; padding: 16px; }
+    .rider-del-label { font-size: 10px; font-weight: 600; color: rgba(255,255,255,0.35); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 12px; }
+    .rider-del-route { display: flex; align-items: center; gap: 10px; font-size: 12px; margin-bottom: 10px; color: rgba(255,255,255,0.6); }
+    .route-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .dot-pickup { background: var(--orange); }
+    .dot-drop { background: var(--rider-blue); }
+    .rider-progress-bar { height: 4px; background: rgba(255,255,255,0.07); border-radius: 100px; overflow: hidden; margin-top: 10px; }
+    .rider-progress-fill { height: 100%; width: 60%; background: linear-gradient(90deg, var(--rider-blue), #60A5FA); border-radius: 100px; animation: ppulse 2s ease-in-out infinite; }
+    @keyframes ppulse { 0%,100%{opacity:1} 50%{opacity:0.6} }
+
+    /* CTA BAND */
+    .cta-band { padding: 120px 48px; background: var(--surface); text-align: center; position: relative; overflow: hidden; }
+    .cta-band::before { content:''; position:absolute; inset:0; background:radial-gradient(ellipse at center, rgba(255,107,44,0.09) 0%, transparent 65%); }
+    .cta-band-headline { font-family: var(--font-display); font-size: clamp(40px, 6vw, 72px); font-weight: 700; letter-spacing: -2px; line-height: 1.0; margin-bottom: 20px; position: relative; }
+    .cta-band-sub { font-size: 18px; color: rgba(255,255,255,0.5); margin-bottom: 48px; position: relative; }
+    .cta-group { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; position: relative; }
+    .btn-vendor { background: var(--vendor-green); color: var(--black); border: none; padding: 15px 32px; border-radius: 100px; font-size: 15px; font-weight: 700; cursor: pointer; transition: all 0.2s; }
+    .btn-vendor:hover { transform: translateY(-2px); box-shadow: 0 12px 40px rgba(29,185,84,0.3); }
+    .btn-rider-cta { background: var(--rider-blue); color: var(--white); border: none; padding: 15px 32px; border-radius: 100px; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+    .btn-rider-cta:hover { transform: translateY(-2px); box-shadow: 0 12px 40px rgba(59,130,246,0.3); }
+
+    /* FOOTER */
+    footer { background: var(--black); border-top: 1px solid rgba(255,255,255,0.06); padding: 64px 48px 40px; }
+    .footer-inner { max-width: 1200px; margin: 0 auto; }
+    .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 48px; margin-bottom: 48px; }
+    .footer-brand-name { font-family: var(--font-display); font-size: 24px; font-weight: 700; margin-bottom: 12px; }
+    .footer-brand-name span { color: var(--orange); }
+    .footer-brand-desc { font-size: 13px; color: rgba(255,255,255,0.4); line-height: 1.7; max-width: 240px; }
+    .footer-col-title { font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.3); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 20px; }
+    .footer-links { list-style: none; display: flex; flex-direction: column; gap: 12px; }
+    .footer-links a { font-size: 14px; color: rgba(255,255,255,0.5); text-decoration: none; transition: color 0.2s; }
+    .footer-links a:hover { color: var(--white); }
+    .footer-bottom { display: flex; justify-content: space-between; align-items: center; padding-top: 32px; border-top: 1px solid rgba(255,255,255,0.06); font-size: 12px; color: rgba(255,255,255,0.3); flex-wrap: wrap; gap: 8px; }
+
+    /* ANIMATION BASE CLASSES */
+    .reveal { opacity: 0; transform: translateY(40px); }
+    .reveal-left { opacity: 0; transform: translateX(-60px); }
+    .reveal-right { opacity: 0; transform: translateX(60px); }
+    .reveal-scale { opacity: 0; transform: scale(0.88) translateY(24px); }
+
+    /* RESPONSIVE */
+    @media (max-width: 900px) {
+      nav { padding: 16px 20px; }
+      .nav-links { display: none; }
+      .hero, .food-slide-section, .how-section,
+      .audience-customer, .audience-vendor, .audience-rider, .cta-band { padding: 80px 20px; }
+      .hero { padding-top: 100px; }
+      .hero-stats { gap: 24px; }
+      .food-grid { grid-template-columns: repeat(2, 1fr); }
+      .how-steps { grid-template-columns: 1fr; gap: 2px; }
+      .how-step:first-child { border-radius: 24px 24px 0 0; }
+      .how-step:last-child { border-radius: 0 0 24px 24px; }
+      .audience-layout, .audience-layout.reverse { grid-template-columns: 1fr; direction: ltr; gap: 48px; }
+      .dash-body { grid-template-columns: 1fr; }
+      .dash-sidebar { display: none; }
+      .footer-grid { grid-template-columns: 1fr 1fr; gap: 32px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .ticker-track { animation: none; }
+      * { animation: none !important; transition: none !important; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav id="navbar">
+  <div class="nav-logo">Eat<span>Up</span></div>
+  <ul class="nav-links">
+    <li><a href="#customers">For Customers</a></li>
+    <li><a href="#restaurants">For Restaurants</a></li>
+    <li><a href="#riders">For Riders</a></li>
+  </ul>
+  <button class="nav-cta">Contact Us</button>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="hero">
+  <div class="hero-bg-glow"></div>
+  <div class="hero-content">
+    <div class="hero-eyebrow reveal">
+      <div class="eyebrow-dot"></div>
+      Now live — Lagos & Redemption City
+    </div>
+    <h1 class="hero-headline reveal">
+      Nigerian food,<br><em>on your doorstep</em><br>in minutes.
+    </h1>
+    <p class="hero-sub reveal">
+      Order from verified local restaurants. Real-time tracking, fast delivery — starting from ₦1,000. Built on a full restaurant operations platform.
+    </p>
+    <div class="hero-actions reveal">
+      <button class="btn-primary">📱 Download App</button>
+      <button class="btn-ghost">List your restaurant →</button>
+    </div>
+    <div class="hero-stats reveal">
+      <div class="stat-item">
+        <div class="stat-num">10<span>+</span></div>
+        <div class="stat-label">Active Restaurants</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">~20<span>min</span></div>
+        <div class="stat-label">Max Delivery</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">₦1<span>k</span></div>
+        <div class="stat-label">Delivery from</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">2</div>
+        <div class="stat-label">Cities</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOD TICKER -->
+<div class="ticker-wrap" aria-hidden="true">
+  <div class="ticker-track">
+    <div class="ticker-item"><span>🍛</span> Party Jollof Rice</div>
+    <div class="ticker-item"><span>🥘</span> Egusi Soup</div>
+    <div class="ticker-item"><span>🍖</span> Suya Plate</div>
+    <div class="ticker-item"><span>🫕</span> Pounded Yam & Soup</div>
+    <div class="ticker-item"><span>🍗</span> Peppered Chicken</div>
+    <div class="ticker-item"><span>🌶️</span> Pepper Soup</div>
+    <div class="ticker-item"><span>🫘</span> Moi Moi</div>
+    <div class="ticker-item"><span>🍚</span> Ofada Rice</div>
+    <div class="ticker-item"><span>🥗</span> Efo Riro</div>
+    <div class="ticker-item"><span>🍩</span> Chin Chin</div>
+    <div class="ticker-item"><span>🍛</span> Party Jollof Rice</div>
+    <div class="ticker-item"><span>🥘</span> Egusi Soup</div>
+    <div class="ticker-item"><span>🍖</span> Suya Plate</div>
+    <div class="ticker-item"><span>🫕</span> Pounded Yam & Soup</div>
+    <div class="ticker-item"><span>🍗</span> Peppered Chicken</div>
+    <div class="ticker-item"><span>🌶️</span> Pepper Soup</div>
+    <div class="ticker-item"><span>🫘</span> Moi Moi</div>
+    <div class="ticker-item"><span>🍚</span> Ofada Rice</div>
+    <div class="ticker-item"><span>🥗</span> Efo Riro</div>
+    <div class="ticker-item"><span>🍩</span> Chin Chin</div>
+  </div>
+</div>
+
+<!-- FOOD MENU SECTION -->
+<section class="food-slide-section" id="menu">
+  <div style="max-width:1200px;margin:0 auto">
+    <div class="section-eyebrow">What you get with us..</div>
+    <h2 class="section-headline reveal">Authentic Nigerian food,<br>made close to home.</h2>
+    <p class="section-sub reveal">Imagine your favourite Jollof to late-night pepper soup all gotten with ease with restaurants you trust, right in your neighbourhood.</p>
+    <h2 class="section-headline reveal">Think it..Crave it..Order it.</h2>
+    <div class="food-grid">
+      <div class="food-card">
+        <div class="food-card-img">🍛</div>
+        <div class="food-card-body">
+          <div class="food-card-name">Party Jollof Rice</div>
+          <div class="food-card-price">₦3,000</div>
+          <div class="food-card-restaurant">Mama Titi's Kitchen</div>
+        </div>
+      </div>
+      <div class="food-card">
+        <div class="food-card-img">🥘</div>
+        <div class="food-card-body">
+          <div class="food-card-name">Egusi & Pounded Yam</div>
+          <div class="food-card-price">₦4,500</div>
+          <div class="food-card-restaurant">Mama Titi's Kitchen</div>
+        </div>
+      </div>
+      <div class="food-card">
+        <div class="food-card-img">🍖</div>
+        <div class="food-card-body">
+          <div class="food-card-name">Suya Plate</div>
+          <div class="food-card-price">₦3,200</div>
+          <div class="food-card-restaurant">Lagos Grill House</div>
+        </div>
+      </div>
+      <div class="food-card">
+        <div class="food-card-img">🌶️</div>
+        <div class="food-card-body">
+          <div class="food-card-name">Pepper Soup</div>
+          <div class="food-card-price">₦2,500</div>
+          <div class="food-card-restaurant">Naija Kitchen</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="how-section" id="how">
+  <div class="how-inner">
+    <div class="section-eyebrow">How it works</div>
+    <h2 class="section-headline reveal">Three steps to your<br>next favourite meal.</h2>
+    <div class="how-steps">
+      <div class="how-step reveal">
+        <div class="how-step-num">01</div>
+        <div class="how-step-icon">📍</div>
+        <div class="how-step-title">Browse nearby</div>
+        <div class="how-step-desc">Find restaurants open near you right now. Filter by food type, price, or how fast they can deliver.</div>
+      </div>
+      <div class="how-step reveal">
+        <div class="how-step-num">02</div>
+        <div class="how-step-icon">🛒</div>
+        <div class="how-step-title">Place your order</div>
+        <div class="how-step-desc">Pick your dishes, add a note (extra pepper? say so), and pay securely. Instant confirmation.</div>
+      </div>
+      <div class="how-step reveal">
+        <div class="how-step-num">03</div>
+        <div class="how-step-icon">🏍️</div>
+        <div class="how-step-title">Track & enjoy</div>
+        <div class="how-step-desc">Live tracking in the app — you'll know exactly where your food is, every step of the way.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CUSTOMER SECTION -->
+<section class="audience-customer" id="customers">
+  <div class="audience-layout">
+    <div class="reveal-left">
+      <div class="audience-tag tag-customer">For Customers</div>
+      <h2 class="audience-headline">Your next meal is<br>20 minutes away.</h2>
+      <p class="audience-desc">Download the EatUp app and order from verified local restaurants — live tracking, push alerts, and delivery starting from ₦1,000.</p>
+      <ul class="feature-list">
+        <li><span class="feature-dot dot-orange">✓</span> Live order tracking on the map</li>
+        <li><span class="feature-dot dot-orange">✓</span> Push notifications at every step</li>
+        <li><span class="feature-dot dot-orange">✓</span> Save favourite restaurants & dishes</li>
+        <li><span class="feature-dot dot-orange">✓</span> OTP-verified, secure checkout</li>
+        <li><span class="feature-dot dot-orange">✓</span> Delivery or pickup — your choice</li>
+      </ul>
+      <button class="btn-primary">📱 Download the App</button>
+    </div>
+    <div class="phone-mockup reveal-right">
+      <div class="float-food" style="top:-20px;right:-10px;font-size:48px">🍛</div>
+      <div class="float-food" style="bottom:30px;left:-20px;font-size:36px">🍗</div>
+      <div class="phone-frame">
+        <div class="phone-notch"></div>
+        <div class="phone-screen">
+          <div class="phone-header-bar">
+            <div class="phone-greeting">Good evening 👋<strong>Ada</strong></div>
+            <div class="phone-avatar">🧑🏿</div>
+          </div>
+          <div class="phone-search">🔍 Search restaurants or dishes...</div>
+          <div class="phone-cats">
+            <div class="phone-cat active">All</div>
+            <div class="phone-cat">Jollof</div>
+            <div class="phone-cat">Soups</div>
+            <div class="phone-cat">Grills</div>
+          </div>
+          <div class="phone-food-cards">
+            <div class="phone-food-card">
+              <div class="phone-food-emoji">🍛</div>
+              <div class="phone-food-info">
+                <div class="phone-food-name">Party Jollof Rice</div>
+                <div class="phone-food-rest">Mama Titi's Kitchen · 12 min</div>
+                <div class="phone-food-price">₦3,000</div>
+              </div>
+              <div class="phone-add-btn">+</div>
+            </div>
+            <div class="phone-food-card">
+              <div class="phone-food-emoji">🥘</div>
+              <div class="phone-food-info">
+                <div class="phone-food-name">Egusi & Pounded Yam</div>
+                <div class="phone-food-rest">Mama Titi's Kitchen · 18 min</div>
+                <div class="phone-food-price">₦4,500</div>
+              </div>
+              <div class="phone-add-btn">+</div>
+            </div>
+            <div class="phone-food-card">
+              <div class="phone-food-emoji">🍖</div>
+              <div class="phone-food-info">
+                <div class="phone-food-name">Suya Plate</div>
+                <div class="phone-food-rest">Lagos Grill House · 15 min</div>
+                <div class="phone-food-price">₦3,200</div>
+              </div>
+              <div class="phone-add-btn">+</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- VENDOR SECTION -->
+<section class="audience-vendor" id="restaurants">
+  <div class="audience-layout reverse">
+    <div class="reveal-right">
+      <div class="audience-tag tag-vendor">For Restaurants</div>
+      <h2 class="audience-headline">The operating system<br>for your restaurant.</h2>
+      <p class="audience-desc">EatUp isn't just delivery. It's a full business hub — real-time orders, menu management, Paystack settlements, and analytics that actually help you grow.</p>
+      <ul class="feature-list">
+        <li><span class="feature-dot dot-green">✓</span> Real-time order pipeline — New → Preparing → Done</li>
+        <li><span class="feature-dot dot-green">✓</span> Full menu management — categories, pricing, availability</li>
+        <li><span class="feature-dot dot-green">✓</span> Daily Paystack settlements to your bank</li>
+        <li><span class="feature-dot dot-green">✓</span> Business analytics — revenue, peak hours, top items</li>
+        <li><span class="feature-dot dot-green">✓</span> Team roles, delivery rules, Zen Mode for busy service</li>
+      </ul>
+      <button class="btn-vendor">Register your restaurant →</button>
+    </div>
+    <div class="reveal-left">
+      <div class="dashboard-mockup">
+        <div class="dash-topbar">
+          <div class="dash-logo">EatUp Vendor Hub</div>
+          <div class="dash-store"><div class="dash-online"></div>Mama Titi's Kitchen · Open</div>
+        </div>
+        <div class="dash-body">
+          <div class="dash-sidebar">
+            <div class="dash-nav-item active">📊 Overview</div>
+            <div class="dash-nav-item">📋 Orders</div>
+            <div class="dash-nav-item">🍽️ Menu</div>
+            <div class="dash-nav-item">💰 Payments</div>
+            <div class="dash-nav-item">📈 Analytics</div>
+            <div class="dash-nav-item">⚙️ Settings</div>
+          </div>
+          <div class="dash-main">
+            <div class="dash-kpi-grid">
+              <div class="dash-kpi">
+                <div class="dash-kpi-label">Revenue Today</div>
+                <div class="dash-kpi-val">₦48,500 <small>↑ 17%</small></div>
+              </div>
+              <div class="dash-kpi">
+                <div class="dash-kpi-label">Active Orders</div>
+                <div class="dash-kpi-val">128 <small>orders</small></div>
+              </div>
+            </div>
+            <div class="dash-order-list">
+              <div class="dash-order">
+                <div><div class="dash-order-id">#ord_1045</div><div class="dash-order-name">Ada Okonkwo</div></div>
+                <div class="dash-order-amount">₦5,500</div>
+                <div class="dash-order-status status-new">New</div>
+              </div>
+              <div class="dash-order">
+                <div><div class="dash-order-id">#ord_1044</div><div class="dash-order-name">Tunde Adeyemi</div></div>
+                <div class="dash-order-amount">₦3,200</div>
+                <div class="dash-order-status status-prep">Preparing</div>
+              </div>
+              <div class="dash-order">
+                <div><div class="dash-order-id">#ord_1043</div><div class="dash-order-name">Amara Okafor</div></div>
+                <div class="dash-order-amount">₦7,800</div>
+                <div class="dash-order-status status-done">Delivered</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- RIDER SECTION -->
+<section class="audience-rider" id="riders">
+  <div class="audience-layout">
+    <div class="reveal-left">
+      <div class="audience-tag tag-rider">For Riders</div>
+      <h2 class="audience-headline">Ride. Deliver.<br>Earn on your terms.</h2>
+      <p class="audience-desc">Join the EatUp rider network. Set your own schedule, pick your vehicle, and earn per delivery — bike, bicycle, scooter, or car.</p>
+      <ul class="feature-list">
+        <li><span class="feature-dot dot-blue">✓</span> Go online when you want — fully flexible</li>
+        <li><span class="feature-dot dot-blue">✓</span> Earn per delivery, paid directly to your account</li>
+        <li><span class="feature-dot dot-blue">✓</span> Bike, bicycle, scooter, or car — all welcome</li>
+        <li><span class="feature-dot dot-blue">✓</span> Route guidance and live delivery tracking</li>
+        <li><span class="feature-dot dot-blue">✓</span> Track earnings and deliveries daily</li>
+      </ul>
+      <button class="btn-rider-cta">Sign up as a rider →</button>
+    </div>
+    <div class="reveal-right">
+      <div class="rider-mockup">
+        <div class="rider-header">
+          <div>
+            <div style="font-size:11px;color:rgba(255,255,255,0.35);margin-bottom:2px">Welcome back</div>
+            <div class="rider-name">Emeka 🏍️</div>
+          </div>
+          <div class="rider-status-toggle">
+            <div class="route-dot dot-drop" style="animation:pulse 1.5s infinite"></div>
+            Online
+          </div>
+        </div>
+        <div class="rider-stats">
+          <div class="rider-stat">
+            <div class="rider-stat-val">₦<small>12,400</small></div>
+            <div class="rider-stat-label">Today</div>
+          </div>
+          <div class="rider-stat">
+            <div class="rider-stat-val">24</div>
+            <div class="rider-stat-label">Deliveries</div>
+          </div>
+          <div class="rider-stat">
+            <div class="rider-stat-val">4.9⭐</div>
+            <div class="rider-stat-label">Rating</div>
+          </div>
+        </div>
+        <div class="rider-current-delivery">
+          <div class="rider-del-label">Current delivery</div>
+          <div class="rider-del-route">
+            <div class="route-dot dot-pickup"></div>
+            Mama Titi's Kitchen, Lekki Phase 1
+          </div>
+          <div class="rider-del-route">
+            <div class="route-dot dot-drop"></div>
+            15 Ozumba Mbadiwe, VI, Lagos
+          </div>
+          <div class="rider-progress-bar"><div class="rider-progress-fill"></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA BAND -->
+<section class="cta-band">
+  <h2 class="cta-band-headline reveal">Ready to eat<em style="color:var(--orange)">?</em></h2>
+  <p class="cta-band-sub reveal">Download the app, list your restaurant, or start delivering today.</p>
+  <div class="cta-group reveal">
+    <button class="btn-vendor">Join us today</button>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-grid">
+      <div>
+        <div class="footer-brand-name">Eat<span>Up</span></div>
+        <p class="footer-brand-desc">Nigerian food, delivered with care. Powered by a full restaurant operations platform — built for Lagos.</p>
+      </div>
+      <div>
+        <div class="footer-col-title">Platform</div>
+        <ul class="footer-links">
+          <li><a href="#">For Customers</a></li>
+          <li><a href="#">For Restaurants</a></li>
+          <li><a href="#">For Riders</a></li>
+          <li><a href="#">Download App</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="footer-col-title">Company</div>
+        <ul class="footer-links">
+          <li><a href="#">About</a></li>
+          <li><a href="#">Contact</a></li>
+          <li><a href="#">Blog</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="footer-col-title">Legal</div>
+        <ul class="footer-links">
+          <li><a href="#">Privacy Policy</a></li>
+          <li><a href="#">Terms of Service</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div>© 2025 EatUp. All rights reserved. Lagos, Nigeria.</div>
+      <div>Built with ❤️ for Nigerian restaurants.</div>
+    </div>
+  </div>
+</footer>
+
+<script>
+  gsap.registerPlugin(ScrollTrigger);
+
+  // Hero food floats — fly in then loop
+  [["#ff1",-120,-60],["#ff2",120,-60],["#ff3",-120,60],["#ff4",120,60],["#ff5",-80,30],["#ff6",80,30]].forEach(([id,x,y],i)=>{
+    const el=document.querySelector(id);
+    if(!el)return;
+    gsap.fromTo(el,{opacity:0,x,y,scale:0.4},{opacity:1,x:0,y:0,scale:1,duration:1.3,delay:0.4+i*0.12,ease:"back.out(1.5)"});
+    gsap.to(el,{y:`+=${i%2===0?-20:20}`,rotation:i%2===0?-10:10,duration:2.8+i*0.25,repeat:-1,yoyo:true,ease:"sine.inOut",delay:1.8+i*0.2});
+  });
+
+  // Nav scroll
+  ScrollTrigger.create({
+    start:"top -60",
+    onEnter:()=>document.getElementById("navbar").style.background="rgba(10,10,10,0.97)",
+    onLeaveBack:()=>document.getElementById("navbar").style.background="rgba(10,10,10,0.7)"
+  });
+
+  // Hero content stagger
+  gsap.fromTo(".hero-content .reveal",{opacity:0,y:40},{opacity:1,y:0,duration:0.9,stagger:0.14,delay:0.25,ease:"power3.out"});
+
+  // Scroll reveals
+  gsap.utils.toArray(".reveal").forEach(el=>{
+    if(el.closest(".hero-content"))return;
+    gsap.fromTo(el,{opacity:0,y:44},{opacity:1,y:0,duration:0.8,ease:"power3.out",
+      scrollTrigger:{trigger:el,start:"top 88%",once:true}});
+  });
+
+  gsap.utils.toArray(".reveal-left").forEach(el=>{
+    gsap.fromTo(el,{opacity:0,x:-64},{opacity:1,x:0,duration:0.9,ease:"power3.out",
+      scrollTrigger:{trigger:el,start:"top 85%",once:true}});
+  });
+
+  gsap.utils.toArray(".reveal-right").forEach(el=>{
+    gsap.fromTo(el,{opacity:0,x:64},{opacity:1,x:0,duration:0.9,ease:"power3.out",
+      scrollTrigger:{trigger:el,start:"top 85%",once:true}});
+  });
+
+  // Food cards — alternating slide from sides
+  gsap.utils.toArray(".food-card").forEach((card,i)=>{
+    gsap.fromTo(card,{opacity:0,x:i%2===0?-80:80,scale:0.88},
+      {opacity:1,x:0,scale:1,duration:0.75,delay:i*0.09,ease:"power3.out",
+       scrollTrigger:{trigger:card,start:"top 90%",once:true}});
+  });
+
+  // Dashboard order rows stagger
+  gsap.utils.toArray(".dash-order").forEach((row,i)=>{
+    gsap.fromTo(row,{opacity:0,x:30},{opacity:1,x:0,duration:0.5,delay:i*0.12,ease:"power2.out",
+      scrollTrigger:{trigger:row,start:"top 90%",once:true}});
+  });
+
+  // How steps stagger
+  gsap.utils.toArray(".how-step").forEach((step,i)=>{
+    gsap.fromTo(step,{opacity:0,y:40},{opacity:1,y:0,duration:0.7,delay:i*0.15,ease:"power3.out",
+      scrollTrigger:{trigger:step,start:"top 88%",once:true}});
+  });
+</script>
+</body>
+</html>

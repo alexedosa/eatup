@@ -9,11 +9,10 @@ import {
   Cell,
 } from "recharts";
 
-import { WEEKLY_REVENUE } from "@/data/vendorOverviewData";
 import GlassCard from "../../shared/GlassCard";
 import { useTheme } from "@/context/ThemeContext";
 
-export default function RevenueChart() {
+export default function RevenueChart({ dashboardData }) {
   const { isDarkMode } = useTheme();
   
   const formatNaira = (amount) => {
@@ -24,13 +23,19 @@ export default function RevenueChart() {
     }).format(amount);
   };
 
-  const totalRevenue = WEEKLY_REVENUE.reduce((sum, d) => sum + d.revenue, 0);
+  const totalRevenue = dashboardData?.stats?.totalRevenue || 0;
 
-  // Recharts expects "dataKey"
-  const chartData = WEEKLY_REVENUE.map((item) => ({
-    day: item.day,
-    revenue: item.revenue,
-  }));
+  // Use real chart data if available, otherwise fallback to empty/zero
+  const chartData = dashboardData?.stats?.revenueHistory || [
+    { day: 'Mon', revenue: 0 },
+    { day: 'Tue', revenue: 0 },
+    { day: 'Wed', revenue: 0 },
+    { day: 'Thu', revenue: 0 },
+    { day: 'Fri', revenue: 0 },
+    { day: 'Sat', revenue: 0 },
+    { day: 'Sun', revenue: 0 }
+  ];
+
 
   return (
     <GlassCard className="h-full flex flex-col">

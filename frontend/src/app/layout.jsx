@@ -1,7 +1,6 @@
-import { Inter, Instrument_Sans } from "next/font/google";
+import { Inter, Instrument_Sans, Playfair_Display, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/context/ThemeContext";
-import { OrderProvider } from "@/context/OrderContext";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -17,6 +16,20 @@ const instrumentSans = Instrument_Sans({
   display: "swap",
 });
 
+const playfairDisplay = Playfair_Display({
+  variable: "--font-logo",
+  subsets: ["latin"],
+  weight: ["700", "800"],
+  display: "swap",
+});
+
+const plusJakarta = Plus_Jakarta_Sans({
+  variable: "--font-jakarta",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800"],
+  display: "swap",
+});
+
 export const metadata = {
   title: "EatUp ",
   description: "Experience the art of food delivery with EatUp.",
@@ -24,12 +37,10 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" className={`${inter.variable} ${instrumentSans.variable} h-full antialiased`}>
+    <html lang="en" className={`${inter.variable} ${instrumentSans.variable} ${playfairDisplay.variable} ${plusJakarta.variable} h-full antialiased`}>
       <body className={`min-h-full flex flex-col font-sans`}>
         <ThemeProvider>
-          <OrderProvider>
-            {children}
-          </OrderProvider>
+          {children}
         </ThemeProvider>
       </body>
     </html>

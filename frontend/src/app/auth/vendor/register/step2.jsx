@@ -4,9 +4,11 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import Image from "next/image";
 import Script from "next/script";
 import countryCodes from "@/data/countryCodesData";
+import { saveStep2BusinessDetails } from "@/lib/api";
+import { toast } from "react-hot-toast";
 import logo from "@/assets/logo/logo.png";
 
-export default function Step2({ nextStep, prevStep, updateFormData, formData }) {
+export default function Step2({ nextStep, prevStep, updateFormData, formData, onboardingId }) {
   const [details, setDetails] = useState({
     businessName: formData.businessName || "",
     address: formData.address || "",
@@ -14,7 +16,8 @@ export default function Step2({ nextStep, prevStep, updateFormData, formData }) 
     email: formData.email || "",
     countryCode: formData.countryCode || "+234",
   });
-
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
   const [showCountryDropdown, setShowCountryDropdown] = useState(false);
   const [countrySearch, setCountrySearch] = useState("");
   const addressRef = useRef(null);
@@ -23,7 +26,10 @@ export default function Step2({ nextStep, prevStep, updateFormData, formData }) 
 
   const selectedCountry = countryCodes.find((c) => c.dialCode === details.countryCode) || countryCodes[0];
 
-  const set = (key) => (e) => setDetails((prev) => ({ ...prev, [key]: e.target.value }));
+  const set = (key) => (e) => {
+    setDetails((prev) => ({ ...prev, [key]: e.target.value }));
+    if (error) setError("");
+  };
 
   // Initialize Google Places Autocomplete
   const initAutocomplete = useCallback(() => {
@@ -73,15 +79,36 @@ export default function Step2({ nextStep, prevStep, updateFormData, formData }) 
     details.phone.trim() &&
     details.email.trim();
 
-  const handleNext = () => {
-    updateFormData(details);
-    nextStep();
+  const handleNext = async () => {
+    if (!onboardingId) return;
+    setLoading(true);
+    try {
+      await saveStep2BusinessDetails(onboardingId, details);
+      updateFormData(details);
+      nextStep();
+    } catch (err) {
+      const msg = err.message || "Failed to save business details";
+      setError(msg);
+      toast.error(msg);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
 
   return (
     <div className="auth-page">
+      <style>{`
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .spinner {
+          width: 16px; height: 16px;
+          border: 2px solid rgba(255,255,255,0.3);
+          border-top-color: white;
+          border-radius: 50%;
+          animation: spin 0.7s linear infinite;
+        }
+      `}</style>
       {/* Load Google Maps Places API */}
       {apiKey && (
         <Script
@@ -95,8 +122,9 @@ export default function Step2({ nextStep, prevStep, updateFormData, formData }) 
       <div className="auth-blob auth-blob-2" />
 
       <div className="auth-card">
-        {/* Steps indicator — 5 steps */}
+        {/* Steps indicator — 6 steps now */}
         <div className="auth-steps">
+          <div className="auth-step-dot done"></div>
           <div className="auth-step-dot done"></div>
           <div className="auth-step-dot active"></div>
           <div className="auth-step-dot idle"></div>
@@ -204,6 +232,12 @@ export default function Step2({ nextStep, prevStep, updateFormData, formData }) 
           />
         </div>
 
+        {error && (
+          <p className="text-[11px] font-bold mb-4 text-red-500 dark:text-orange-200/90 animate-in fade-in slide-in-from-top-1 text-center">
+            {error}
+          </p>
+        )}
+
         <div className="auth-btn-row" style={{ marginTop: 8 }}>
           <button className="auth-btn auth-btn-ghost" onClick={prevStep}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -211,11 +245,17 @@ export default function Step2({ nextStep, prevStep, updateFormData, formData }) 
             </svg>
             Back
           </button>
-          <button className="auth-btn auth-btn-primary" onClick={handleNext} disabled={!isValid}>
-            Continue
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M5 12h14M12 5l7 7-7 7"/>
-            </svg>
+          <button className="auth-btn auth-btn-primary" onClick={handleNext} disabled={!isValid || loading}>
+            {loading ? (
+              <span className="spinner" />
+            ) : (
+              <>
+                Continue
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M5 12h14M12 5l7 7-7 7"/>
+                </svg>
+              </>
+            )}
           </button>
         </div>
       </div>

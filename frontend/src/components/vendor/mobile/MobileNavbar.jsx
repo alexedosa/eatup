@@ -1,25 +1,40 @@
 import { useState } from 'react'
-import { BUSINESS, NOTIFICATIONS } from '@/data/vendorBusiness'
 import { Notification, Sun1, Moon, Flash } from 'iconsax-reactjs'
 import { useTheme } from '@/context/ThemeContext'
 
-export default function MobileNavbar({ isStoreOpen, onStoreToggle, onFocusModeToggle, isFocusMode }) {
+export default function MobileNavbar({ 
+  isStoreOpen, 
+  onStoreToggle, 
+  onFocusModeToggle, 
+  isFocusMode,
+  vendorData,
+  dashboardData
+}) {
   const [showNotifications, setShowNotifications] = useState(false)
   const { isDarkMode, toggleTheme } = useTheme()
   
-  const unreadCount = NOTIFICATIONS?.filter((n) => !n.read).length ?? 0
+  const notifications = dashboardData?.orders?.slice(0, 5).map((order, idx) => ({
+    id: order._id || order.id || idx,
+    title: `Order ${order.orderNumber || order.id}`,
+    message: `Order status is ${order.status}`,
+    time: "Recently",
+    read: order.status !== 'PENDING'
+  })) || [];
+
+  const unreadCount = notifications.filter((n) => !n.read).length
 
   const handleToggleStore = () => {
-    const newState = !isStoreOpen;
     if (onStoreToggle) {
       onStoreToggle();
     }
     
     // Play sound
-    const soundPath = newState ? "/sounds/toggle-button-on.mp3" : "/sounds/toggle-button-off.mp3";
+    const soundPath = !isStoreOpen ? "/sounds/toggle-button-on.mp3" : "/sounds/toggle-button-off.mp3";
     const audio = new Audio(soundPath);
     audio.play().catch(() => {});
   }
+
+  const businessName = vendorData?.businessName || dashboardData?.shops?.[0]?.name || "EatUp";
 
   return (
     <nav 
@@ -38,7 +53,7 @@ export default function MobileNavbar({ isStoreOpen, onStoreToggle, onFocusModeTo
         </div>
         <div className="flex flex-col leading-tight">
           <span className="font-bold text-stone-900 dark:text-white text-sm leading-none tracking-tight">
-            {BUSINESS?.name ?? 'EatUp'}
+            {businessName}
           </span>
           <div className="flex items-center gap-1.5 mt-1">
             <span className={`w-1.5 h-1.5 rounded-full animate-pulse ${isStoreOpen ? 'bg-emerald-500' : 'bg-red-500'}`} />
@@ -85,7 +100,7 @@ export default function MobileNavbar({ isStoreOpen, onStoreToggle, onFocusModeTo
               <div className="p-3 border-b border-stone-50 dark:border-white/5 bg-stone-50/50 dark:bg-white/5">
                 <p className="text-[10px] font-bold text-stone-400 uppercase tracking-widest">Recent Notifications</p>
               </div>
-              {NOTIFICATIONS?.slice(0, 3).map((n) => (
+              {notifications.slice(0, 3).map((n) => (
                 <div key={n.id} className="p-3 border-b border-stone-50 dark:border-white/5 last:border-0">
                   <p className="text-xs font-semibold text-stone-800 dark:text-stone-100">{n.title}</p>
                   <p className="text-[10px] text-stone-400 mt-1">{n.time}</p>

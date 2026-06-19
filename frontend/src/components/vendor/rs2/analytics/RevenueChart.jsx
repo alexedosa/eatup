@@ -9,7 +9,7 @@ import {
   ResponsiveContainer,
   Legend
 } from 'recharts'
-import { formatNaira } from '@/data/mockAnalytics'
+import { formatNaira } from '@/lib/formatters'
 
 export default function RevenueChart({ data }) {
   const CustomTooltip = ({ active, payload, label }) => {

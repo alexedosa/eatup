@@ -9,18 +9,20 @@ import ProfilePage from './profile/ProfilePage'
 import SettingsPage from './settings/SettingsPage'
 import AnalyticsPage from './analytics/AnalyticsPage'
 
-export default function MainContent({ activeView, onViewChange, searchQuery, isLoading }) {
-  
+export default function MainContent({ activeView, onViewChange, searchQuery, isLoading, vendorData, dashboardData }) {
+
   // Overview Dashboard (default view)
   if (activeView === 'overview') {
+    const displayName = vendorData?.firstName || 'Vendor'
     return (
       <div className="flex flex-col gap-6">
         {/* Dashboard Header with Date Filter */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <h1 className="text-2xl font-display font-bold text-stone-800 dark:text-white">Overview</h1>
-            <p className="text-sm text-stone-500 dark:text-stone-400">Welcome back! Here's what's happening today.</p>
+            <p className="text-sm text-stone-500 dark:text-stone-400">Welcome back, {displayName}! Here's what's happening today.</p>
           </div>
+
           
           <div className="flex items-center gap-2 bg-white/60 dark:bg-white/5 backdrop-blur-md border border-stone-200/60 dark:border-white/10 p-1 rounded-xl shadow-sm self-start md:self-auto">
             {['Today', '7 Days', '30 Days'].map((period) => (
@@ -39,14 +41,16 @@ export default function MainContent({ activeView, onViewChange, searchQuery, isL
           </div>
         </div>
 
-        <MetricsRow onMetricClick={(id) => {}} isLoading={isLoading} />
+        <MetricsRow onMetricClick={(id) => {}} isLoading={isLoading} dashboardData={dashboardData} />
         
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <RevenueChart />
-          <RecentOrders onOrderClick={(id) => {}} isLoading={isLoading} />
+          <RevenueChart dashboardData={dashboardData} />
+
+          <RecentOrders onOrderClick={(id) => {}} isLoading={isLoading} orders={dashboardData?.orders || []} />
+
         </div>
         
-        <PopularItems onItemClick={(item) => {}} />
+        <PopularItems onItemClick={(item) => {}} dashboardData={dashboardData} />
       </div>
     )
   }

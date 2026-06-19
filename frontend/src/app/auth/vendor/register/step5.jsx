@@ -1,11 +1,30 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import logo from "@/assets/logo/logo.png";
+import { submitOnboardingForReview } from "@/lib/api";
+import { toast } from "react-hot-toast";
 
-export default function Step5({ formData }) {
+export default function Step5({ formData, onboardingId }) {
   const router = useRouter();
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    async function submitOnboarding() {
+      if (!onboardingId) return;
+      try {
+        await submitOnboardingForReview(onboardingId);
+        toast.success("Application submitted successfully!");
+      } catch (err) {
+        const msg = err.message || "Failed to submit application";
+        setError(msg);
+        toast.error(msg);
+      }
+    }
+    submitOnboarding();
+  }, [onboardingId]);
 
   return (
     <div className="auth-page">
@@ -13,8 +32,9 @@ export default function Step5({ formData }) {
       <div className="auth-blob auth-blob-2" />
 
       <div className="auth-card" style={{ textAlign: "center" }}>
-        {/* Steps indicator — 5 steps */}
+        {/* Steps indicator — 6 steps now */}
         <div className="auth-steps">
+          <div className="auth-step-dot done"></div>
           <div className="auth-step-dot done"></div>
           <div className="auth-step-dot done"></div>
           <div className="auth-step-dot done"></div>
@@ -27,6 +47,12 @@ export default function Step5({ formData }) {
             <Image src={logo} alt="EatUp" width={40} height={40} priority style={{ objectFit: "contain" }} />
           </div>
         </div>
+
+        {error && (
+          <p className="text-[11px] font-bold mb-4 text-red-500 dark:text-orange-200/90 animate-in fade-in slide-in-from-top-1 text-center">
+            {error}
+          </p>
+        )}
 
       <div className="auth-pending-icon">
         <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">

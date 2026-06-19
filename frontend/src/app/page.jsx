@@ -1,7 +1,5 @@
+import HomePage from "@/components/marketing/home/HomePage";
+
 export default function AppPage() {
-  return (
-    <div className="p-4">
-      <h1 className="text-2xl font-bold">Home Page</h1>
-    </div>
-  );
+  return <HomePage />;
 }

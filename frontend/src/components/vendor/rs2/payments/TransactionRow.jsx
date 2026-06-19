@@ -1,7 +1,7 @@
 // src/components/vendor/rs2/payments/TransactionRow.jsx
 import { motion } from 'framer-motion'
 import { Card, Bank, Wallet, MoneySend, ArrowRight2 } from 'iconsax-reactjs'
-import { getStatusColor, formatDate } from '@/data/mockPayments'
+import { getStatusColor, formatDate } from '@/lib/formatters'
 
 export default function TransactionRow({ transaction, onViewDetails, formatNaira }) {
   const statusColor = getStatusColor(transaction.status)

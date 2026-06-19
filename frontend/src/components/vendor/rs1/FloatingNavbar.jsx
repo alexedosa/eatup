@@ -1,7 +1,6 @@
 'use client'
 import { useState } from "react";
 import { AnimatePresence } from "framer-motion";
-import { BUSINESS, NOTIFICATIONS } from "@/data/vendorBusiness";
 import { Icons } from "@/data/vendorIcons";
 import { Notification, Sun1, Moon, Flash } from "iconsax-reactjs";
 import { useTheme } from "@/context/ThemeContext";
@@ -12,29 +11,38 @@ export default function FloatingNavbar({
   isFocusMode = false,
   onSearch,
   isStoreOpen,
-  onStoreToggle
+  onStoreToggle,
+  vendorData,
+  dashboardData
 }) {
   const [showNotifications, setShowNotifications] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const { isDarkMode, toggleTheme } = useTheme();
 
-  const unreadCount = NOTIFICATIONS.filter((n) => !n.read).length;
+  const notifications = dashboardData?.orders?.slice(0, 5).map((order, idx) => ({
+    id: order._id || order.id || idx,
+    text: `Order ${order.orderNumber || order.id} is ${order.status}`,
+    read: order.status !== 'PENDING'
+  })) || [];
+
+  const unreadCount = notifications.filter((n) => !n.read).length;
 
   const storeStatus = isStoreOpen
     ? { label: "Store Open", dot: "bg-emerald-500" }
     : { label: "Store Closed", dot: "bg-red-500" };
 
   const handleToggleStore = () => {
-    const newState = !isStoreOpen;
     if (onStoreToggle) {
       onStoreToggle();
     }
     
     // Play sound
-    const soundPath = newState ? "/sounds/toggle-button-on.mp3" : "/sounds/toggle-button-off.mp3";
+    const soundPath = !isStoreOpen ? "/sounds/toggle-button-on.mp3" : "/sounds/toggle-button-off.mp3";
     const audio = new Audio(soundPath);
     audio.play().catch(() => {});
   };
+
+  const businessName = vendorData?.businessName || dashboardData?.shops?.[0]?.name || "Loading...";
 
   return (
     <nav 
@@ -50,7 +58,7 @@ export default function FloatingNavbar({
 
         <div className="flex flex-col">
           <h2 className="font-semibold text-stone-800 dark:text-white text-base">
-            {BUSINESS.name}
+            {businessName}
           </h2>
 
           <div className="flex items-center gap-1.5 text-stone-500 dark:text-stone-400">
@@ -115,6 +123,7 @@ export default function FloatingNavbar({
               <NotificationDropdown 
                 isOpen={showNotifications} 
                 onClose={() => setShowNotifications(false)} 
+                notifications={notifications}
               />
             )}
           </AnimatePresence>

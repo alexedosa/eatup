@@ -1,29 +1,21 @@
 "use client";
 
 import { useState } from "react";
-import { storeInfo } from "@/data/mockStats";
+import { useVendorData } from "@/hooks/useVendorData";
 // import Badge from "@/components/ui/Badge";
 
 export default function Navbar({ onMenuToggle }) {
+  const vendorInfo = useVendorData();
   const [isOnline, setIsOnline] = useState(true);
   const [showNotifs, setShowNotifs] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
 
-  const notifications = [
-    {
-      id: 1,
-      text: "New order ORD-7821 received",
-      time: "2m ago",
-      unread: true,
-    },
-    {
-      id: 2,
-      text: "ORD-7819 marked as delivered",
-      time: "18m ago",
-      unread: true,
-    },
-    { id: 3, text: "Low stock: Jollof Rice", time: "1h ago", unread: false },
-  ];
+  const notifications = dashboardData?.orders?.slice(0, 3).map((order, idx) => ({
+    id: order._id || order.id || idx,
+    text: `New order ${order.orderNumber || order.id} received`,
+    time: "Recently",
+    unread: order.status === 'PENDING',
+  })) || [];
 
   const unreadCount = notifications.filter((n) => n.unread).length;
 
@@ -54,14 +46,14 @@ export default function Navbar({ onMenuToggle }) {
       {/* Store name */}
       <div className="flex items-center gap-2 min-w-0">
         <div className="w-7 h-7 rounded-md bg-brand-100 text-brand-600 flex items-center justify-center text-xs font-bold shrink-0">
-          {storeInfo.logo}
+          {vendorInfo.logo}
         </div>
         <div className="min-w-0 hidden sm:block">
           <p className="text-sm font-semibold text-surface-800 truncate leading-tight">
-            {storeInfo.name}
+            {vendorInfo.name}
           </p>
           <p className="text-xs text-surface-400 truncate leading-tight">
-            {storeInfo.location}
+            {vendorInfo.location}
           </p>
         </div>
       </div>

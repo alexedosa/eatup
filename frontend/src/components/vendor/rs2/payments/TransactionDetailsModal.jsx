@@ -1,7 +1,7 @@
 // src/components/vendor/rs2/payments/TransactionDetailsModal.jsx
 import { motion, AnimatePresence } from 'framer-motion'
 import { Card, Bank, Wallet, MoneySend, CloseCircle, Receipt2, User, Timer1, InfoCircle, Bag2 } from 'iconsax-reactjs'
-import { formatDate } from '@/data/mockPayments'
+import { formatDate } from '@/lib/formatters'
 import Image from 'next/image'
 
 export default function TransactionDetailsModal({ isOpen, onClose, transaction, formatNaira }) {

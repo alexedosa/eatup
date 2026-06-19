@@ -30,8 +30,10 @@ export default function MenuPage({ searchQuery: globalSearchQuery }) {
     toggleAvailability,
     getFilteredItems,
     addCategory,
-    deleteCategory
+    deleteCategory,
+    isLoading
   } = useMenuManagement()
+
 
   const [itemToDelete, setItemToDelete] = useState(null)
 
@@ -147,18 +149,25 @@ export default function MenuPage({ searchQuery: globalSearchQuery }) {
       </div>
       
       {/* Menu Grid */}
-      <MenuGrid
-        items={filteredItems}
-        categoryColor={activeCategoryData?.color}
-        onEdit={(item) => {
-          toast.info(`Editing ${item.name} coming soon`, {
-            style: { borderRadius: '12px' }
-          })
-        }}
-        onDelete={handleDeleteItem}
-        onToggleAvailability={handleToggleAvailability}
-        viewMode={viewMode}
-      />
+      {isLoading ? (
+        <div className="flex justify-center items-center py-20">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-500"></div>
+        </div>
+      ) : (
+        <MenuGrid
+          items={filteredItems}
+          categoryColor={activeCategoryData?.color}
+          onEdit={(item) => {
+            toast.info(`Editing ${item.name} coming soon`, {
+              style: { borderRadius: '12px' }
+            })
+          }}
+          onDelete={handleDeleteItem}
+          onToggleAvailability={handleToggleAvailability}
+          viewMode={viewMode}
+        />
+      )}
+
       
       {/* Modals */}
       <AddItemModal

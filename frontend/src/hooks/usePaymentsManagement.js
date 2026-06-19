@@ -1,9 +1,15 @@
 // src/hooks/usePaymentsManagement.js
-import { useState, useCallback } from 'react'
-import { PAYMENT_STATS, RECENT_TRANSACTIONS, SETTLEMENT_INFO } from '@/data/mockPayments'
+import { useState, useCallback, useEffect } from 'react'
+import { api } from '@/lib/api'
+import toast from 'react-hot-toast'
+import { formatNaira } from '@/lib/formatters'
 
 export function usePaymentsManagement() {
-  const [transactions, setTransactions] = useState(RECENT_TRANSACTIONS)
+  const [transactions, setTransactions] = useState([])
+  const [stats, setStats] = useState(null)
+  const [settlementInfo, setSettlementInfo] = useState(null)
+  const [isLoading, setIsLoading] = useState(true)
+
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
   const [paymentMethodFilter, setPaymentMethodFilter] = useState('all')
@@ -11,6 +17,47 @@ export function usePaymentsManagement() {
   const [selectedTransaction, setSelectedTransaction] = useState(null)
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false)
   const [isExporting, setIsExporting] = useState(false)
+
+  // Fetch payments data
+  useEffect(() => {
+    async function fetchPaymentsData() {
+      setIsLoading(true)
+      try {
+        const paymentsRes = await api.vendor.payments.list()
+
+        const summary = paymentsRes?.summary || paymentsRes
+        const transactions = paymentsRes?.transactions || (Array.isArray(paymentsRes) ? paymentsRes : [])
+
+        setTransactions(transactions)
+
+        setStats({
+          availableBalance: summary?.availableBalance || 0,
+          pendingSettlement: summary?.pendingSettlement || 0,
+          totalProcessed: summary?.totalProcessed || 0,
+          lastSettlementDate: summary?.lastSettlementDate || new Date().toISOString(),
+        })
+        setSettlementInfo({
+          settlementCycle: summary?.schedule || 'Daily',
+          nextPayoutDate: summary?.nextSettlement || new Date(Date.now() + 86400000).toISOString(),
+          nextPayoutAmount: summary?.pendingSettlement || 0,
+          pendingSettlement: summary?.pendingSettlement || 0,
+          lastPayoutAmount: summary?.totalProcessed || 0,
+          lastPayoutDate: summary?.lastSettlementDate || new Date().toISOString(),
+          bankAccount: {
+            bankName: summary?.bankName || 'N/A',
+            accountName: summary?.accountName || 'N/A',
+            accountNumber: summary?.accountNumber || '0000000000',
+          },
+        })
+      } catch (error) {
+        console.error("Failed to load payments data", error)
+        toast.error("Failed to load payments data")
+      } finally {
+        setIsLoading(false)
+      }
+    }
+    fetchPaymentsData()
+  }, [])
   
   // Filter transactions
   const getFilteredTransactions = useCallback(() => {
@@ -20,10 +67,10 @@ export function usePaymentsManagement() {
     if (searchQuery) {
       const query = searchQuery.toLowerCase()
       filtered = filtered.filter(t => 
-        t.id.toLowerCase().includes(query) ||
-        t.customer.toLowerCase().includes(query) ||
-        t.orderId.toLowerCase().includes(query) ||
-        t.customerEmail.toLowerCase().includes(query)
+        t.id?.toLowerCase().includes(query) ||
+        t.customer?.toLowerCase().includes(query) ||
+        t.orderId?.toLowerCase().includes(query) ||
+        t.customerEmail?.toLowerCase().includes(query)
       )
     }
     
@@ -51,10 +98,10 @@ export function usePaymentsManagement() {
   // Calculate totals from filtered transactions
   const calculateTotals = useCallback(() => {
     const filtered = getFilteredTransactions()
-    const total = filtered.reduce((sum, t) => sum + t.amount, 0)
+    const total = filtered.reduce((sum, t) => sum + (t.amount || 0), 0)
     const completedCount = filtered.filter(t => t.status === 'completed').length
     const pendingAmount = filtered.filter(t => t.settlementStatus === 'pending')
-      .reduce((sum, t) => sum + t.amount, 0)
+      .reduce((sum, t) => sum + (t.amount || 0), 0)
     
     return { total, completedCount, pendingAmount }
   }, [getFilteredTransactions])
@@ -106,8 +153,17 @@ export function usePaymentsManagement() {
   const totals = calculateTotals()
   
   return {
-    stats: PAYMENT_STATS,
-    settlementInfo: SETTLEMENT_INFO,
+    isLoading,
+    stats: stats || { availableBalance: 0, pendingSettlement: 0, totalProcessed: 0, lastSettlementDate: new Date().toISOString() },
+    settlementInfo: settlementInfo || {
+      settlementCycle: 'Daily',
+      nextPayoutDate: new Date(Date.now() + 86400000).toISOString(),
+      nextPayoutAmount: 0,
+      pendingSettlement: 0,
+      lastPayoutAmount: 0,
+      lastPayoutDate: new Date().toISOString(),
+      bankAccount: { bankName: '—', accountName: '—', accountNumber: '0000000000' },
+    },
     transactions: filteredTransactions,
     allTransactions: transactions,
     searchQuery,
@@ -126,10 +182,7 @@ export function usePaymentsManagement() {
     exportToCSV,
     clearFilters,
     totals,
-    formatNaira: (amount) => new Intl.NumberFormat('en-NG', {
-      style: 'currency',
-      currency: 'NGN',
-      minimumFractionDigits: 0
-    }).format(amount)
+    formatNaira
   }
 }
+

@@ -1,5 +1,5 @@
 // src/components/vendor/rs2/analytics/TopItemsChart.jsx
-import { formatNaira } from '@/data/mockAnalytics'
+import { formatNaira } from '@/lib/formatters'
 
 export default function TopItemsChart({ items }) {
   const top5 = items.slice(0, 5)

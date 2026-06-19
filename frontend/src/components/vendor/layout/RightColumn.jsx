@@ -19,7 +19,9 @@ export default function RightColumn({
   onStoreToggle,
   searchQuery,
   onSearch,
-  isLoading
+  isLoading,
+  vendorData,
+  dashboardData
 }) {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false)
   const isMobile = useMediaQuery('(max-width: 768px)')
@@ -49,6 +51,8 @@ export default function RightColumn({
             onStoreToggle={onStoreToggle}
             onFocusModeToggle={onFocusModeToggle}
             isFocusMode={isFocusMode}
+            vendorData={vendorData}
+            dashboardData={dashboardData}
           />
         )}
 
@@ -61,6 +65,7 @@ export default function RightColumn({
               isStoreOpen={isStoreOpen}
               onStoreToggle={onStoreToggle}
               onSearch={onSearch}
+              vendorData={vendorData}
             />
           )}
           
@@ -70,11 +75,17 @@ export default function RightColumn({
             onViewChange={onViewChange}
             searchQuery={searchQuery}
             isLoading={isLoading}
+            vendorData={vendorData}
+            dashboardData={dashboardData}
           />
+
           
           {/* RS3 - Quick Toolbox (hidden on mobile and specific views) */}
           {!isMobile && activeView !== 'settings' && activeView !== 'profile' && (
-            <QuickToolbox onMetricClick={(view) => onViewChange(view)} />
+            <QuickToolbox 
+              onMetricClick={(view) => onViewChange(view)} 
+              dashboardData={dashboardData}
+            />
           )}
         </div>
       </div>
