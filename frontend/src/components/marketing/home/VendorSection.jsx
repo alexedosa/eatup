@@ -1,182 +1,154 @@
+"use client";
+
 import Link from "next/link";
-import VendorMockup from "./VendorMockup";
 import { vendorFeatures } from "@/data/landing";
 
-const GREEN = "#1DB954";
+const INK   = "#0A0A0A";
+const GREEN = "#0D7A3E";
+const MUTED = "#888888";
 
 export default function VendorSection() {
   return (
-    <>
-      {/* ── Intro bridge — dark bg, green-tinted divider ── */}
-      <div
-        style={{
-          width: "100%",
-          background: "#0A0A0A",
-          position: "relative",
-          overflow: "hidden",
-          padding: "80px 48px 64px",
-          textAlign: "center",
-        }}
-      >
-        {/* Thin green line divider */}
-        <div style={{
-          width: "100%",
-          height: 1,
-          background: "linear-gradient(to right, transparent, rgba(29,185,84,0.35), transparent)",
-          marginBottom: 52,
-        }} />
+    <section
+      id="restaurants"
+      style={{ width: "100%", background: "#F5F4F0", padding: "120px 0" }}
+    >
+      {/* Section label */}
+      <div style={{ maxWidth: 1280, margin: "0 auto", padding: "0 64px", marginBottom: 48 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+          <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.18em", textTransform: "uppercase", color: GREEN, fontFamily: "var(--font-jakarta)" }}>
+            For Restaurants
+          </span>
+          <div style={{ flex: 1, height: 1, background: "rgba(0,0,0,0.08)" }} />
+        </div>
+      </div>
 
-        {/* Label */}
+      {/* Intro */}
+      <div style={{ maxWidth: 1280, margin: "0 auto", padding: "0 64px", marginBottom: 80 }}>
         <p className="font-jakarta" style={{
           fontSize: 11, fontWeight: 700,
-          letterSpacing: "0.22em", textTransform: "uppercase",
-          color: GREEN, marginBottom: 16,
+          letterSpacing: "0.18em", textTransform: "uppercase",
+          color: GREEN, marginBottom: 20,
         }}>
           Built for the kitchen, not just delivery
         </p>
-
-        {/* Big intro statement */}
-        <p className="font-jakarta" style={{
-          fontSize: "clamp(28px, 4.5vw, 56px)",
-          fontWeight: 800, letterSpacing: "-0.03em",
-          lineHeight: 1.08, color: "#FFFFFF",
-          maxWidth: 780, margin: "0 auto 20px",
+        <h2 className="font-heading" style={{
+          fontSize: "clamp(32px, 4.8vw, 62px)",
+          fontWeight: 700, lineHeight: 1.04,
+          letterSpacing: "-0.04em",
+          color: INK,
+          maxWidth: 760,
         }}>
           Running a restaurant is hard.{" "}
           <span style={{ color: GREEN }}>Your platform shouldn't be.</span>
-        </p>
-
+        </h2>
         <p className="font-jakarta" style={{
           fontSize: "clamp(14px, 1.4vw, 16px)",
-          color: "rgba(255,255,255,0.40)",
-          lineHeight: 1.8, maxWidth: 520, margin: "0 auto",
+          color: MUTED, lineHeight: 1.75,
+          maxWidth: 560, marginTop: 20,
         }}>
           EatUp gives you orders, analytics, menu control, Paystack settlements, and team
           management — all in one place. Built from the ground up for Nigerian kitchens.
         </p>
       </div>
 
-      {/* ── Main vendor section — dark bg ── */}
-      <section
-        id="restaurants"
-        style={{
-          width: "100%",
-          background: "#0A0A0A",
-          position: "relative",
-          overflow: "hidden",
-          padding: "60px 0 120px",
-        }}
-      >
-        {/* Green blob — bottom right */}
-        <div aria-hidden="true" style={{
-          position: "absolute", width: 520, height: 520, pointerEvents: "none",
-          borderRadius: "60% 40% 45% 55% / 48% 55% 45% 52%",
-          background: "radial-gradient(ellipse at 40% 40%, rgba(29,185,84,0.18) 0%, rgba(29,185,84,0.08) 50%, transparent 100%)",
-          filter: "blur(80px)", bottom: "-150px", right: "-160px",
-          animation: "blob-drift-1 14s ease-in-out infinite alternate",
-        }} />
+      {/* Content row */}
+      <div className="vs-inner" style={{
+        maxWidth: 1280, margin: "0 auto",
+        padding: "0 64px",
+        display: "flex", alignItems: "flex-start", gap: 80,
+      }}>
 
-        {/* ── Content row — copy left, mockup right ── */}
-        <div
-          className="vs-inner"
-          style={{
-            position: "relative", zIndex: 2,
-            maxWidth: 1280, margin: "0 auto",
-            padding: "0 64px",
-            display: "flex",
-            alignItems: "center",
-            gap: 80,
+        {/* LEFT — Headline + sub */}
+        <div className="vs-copy" style={{ flex: "0 0 44%", maxWidth: 480 }}>
+          <h2 className="font-heading" style={{
+            fontSize: "clamp(40px, 5.8vw, 76px)",
+            fontWeight: 700, lineHeight: 0.96,
+            letterSpacing: "-0.04em",
+            color: INK, marginBottom: 24,
+          }}>
+            List it.
+            <br />
+            <span style={{ color: GREEN }}>Cook it.</span>
+            <br />
+            Get paid.
+          </h2>
+
+          <p className="font-jakarta" style={{
+            fontSize: "clamp(14px, 1.4vw, 16px)",
+            color: MUTED, lineHeight: 1.75,
+            marginBottom: 36, maxWidth: 380,
+          }}>
+            Not just delivery. A full operating system for your restaurant — built for Nigeria.
+          </p>
+
+          <Link href="/auth/vendor/register" className="font-jakarta vs-cta" style={{
+            display: "inline-flex", alignItems: "center", gap: 8,
+            background: INK, color: "#fff",
+            padding: "13px 26px", borderRadius: 100,
+            fontSize: 14, fontWeight: 600,
+            textDecoration: "none",
+            transition: "background 0.2s, transform 0.2s",
+            letterSpacing: "-0.01em",
           }}
-        >
-          {/* LEFT — Copy */}
-          <div className="vs-copy" style={{ flex: "0 0 44%", maxWidth: 480 }}>
+          >
+            Register your restaurant
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" />
+            </svg>
+          </Link>
 
-            {/* Eyebrow pill */}
-            <div style={{
-              display: "inline-flex", alignItems: "center", gap: 8,
-              background: "rgba(29,185,84,0.10)",
-              border: "1px solid rgba(29,185,84,0.28)",
-              borderRadius: 100, padding: "6px 16px",
-              marginBottom: 28,
-            }}>
-              <span style={{
-                width: 6, height: 6, borderRadius: "50%",
-                background: GREEN, flexShrink: 0,
-                animation: "pulse 2s infinite",
-              }} />
-              <span className="font-jakarta" style={{
-                fontSize: 12, fontWeight: 600, color: GREEN, letterSpacing: "0.08em",
-              }}>
-                For Restaurants
-              </span>
-            </div>
-
-            {/* Headline */}
-            <h2 className="font-jakarta" style={{
-              fontSize: "clamp(42px, 5.5vw, 68px)",
-              fontWeight: 800, lineHeight: 1.04,
-              letterSpacing: "-0.03em", marginBottom: 20,
-            }}>
-              <span style={{ color: "#FFFFFF", display: "block" }}>List it..</span>
-              <span style={{ color: GREEN, display: "block" }}>Cook it..</span>
-              <span style={{ color: "#FFFFFF", display: "block" }}>Get paid.</span>
-            </h2>
-
-            {/* Subheadline */}
-            <p className="font-jakarta" style={{
-              fontSize: "clamp(14px, 1.5vw, 16px)",
-              color: "rgba(255,255,255,0.50)",
-              lineHeight: 1.75, marginBottom: 28, maxWidth: 440,
-            }}>
-              Not just delivery. A full operating system for your restaurant — built for Nigeria.
-            </p>
-
-            {/* Features */}
-            <ul style={{
-              listStyle: "none", padding: 0,
-              margin: "0 0 36px 0",
-              display: "flex", flexDirection: "column", gap: 12,
-            }}>
-              {vendorFeatures.map((f) => (
-                <li key={f} className="font-jakarta" style={{
-                  display: "flex", alignItems: "center", gap: 12,
-                  fontSize: 14, fontWeight: 500, color: "rgba(255,255,255,0.70)",
-                }}>
-                  <span style={{
-                    width: 20, height: 20, borderRadius: "50%",
-                    background: "rgba(29,185,84,0.16)",
-                    display: "flex", alignItems: "center", justifyContent: "center",
-                    flexShrink: 0,
-                  }}>
-                    <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
-                      <path d="M1.5 5.5L3.5 7.5L8.5 2.5" stroke={GREEN} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
-                  </span>
-                  {f}
-                </li>
-              ))}
-            </ul>
-
-            {/* CTA */}
-            <Link href="/auth/vendor/register" className="font-jakarta vs-cta">
-              Register your restaurant
-            </Link>
-
-            {/* Trust line */}
-            <p className="font-jakarta" style={{
-              fontSize: 12, fontWeight: 500,
-              color: "rgba(255,255,255,0.24)",
-              letterSpacing: "0.04em",
-              marginTop: 16,
-            }}>
-              CAC verified&nbsp;&nbsp;·&nbsp;&nbsp;Paystack settlements&nbsp;&nbsp;·&nbsp;&nbsp;Free to list
-            </p>
-          </div>
-
-          {/* RIGHT — Dashboard mockup (animates when scrolled into view) */}
-          <VendorMockup />
+          <p className="font-jakarta" style={{
+            fontSize: 11, fontWeight: 500,
+            color: "rgba(0,0,0,0.30)", letterSpacing: "0.04em",
+            marginTop: 16,
+          }}>
+            CAC verified · Paystack settlements · Free to list
+          </p>
         </div>
-      </section>
-    </>
+
+        {/* RIGHT — Numbered feature list */}
+        <div className="vs-features" style={{ flex: 1 }}>
+          <ol style={{ listStyle: "none", padding: 0, margin: 0 }}>
+            {vendorFeatures.map((f, i) => (
+              <li key={f} style={{
+                display: "flex", alignItems: "flex-start", gap: 20,
+                padding: "20px 0",
+                borderBottom: i < vendorFeatures.length - 1 ? "1px solid rgba(0,0,0,0.07)" : "none",
+              }}>
+                <span className="font-jakarta" style={{
+                  fontSize: 11, fontWeight: 700,
+                  color: GREEN, letterSpacing: "0.06em",
+                  minWidth: 24, paddingTop: 2,
+                }}>
+                  {String(i + 1).padStart(2, "0")}
+                </span>
+                <span className="font-jakarta" style={{
+                  fontSize: 15, fontWeight: 500,
+                  color: "#333", lineHeight: 1.55,
+                }}>
+                  {f}
+                </span>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </div>
+
+      <style>{`
+        .vs-cta:hover {
+          background: ${GREEN} !important;
+          transform: translateY(-2px);
+        }
+        @media (max-width: 900px) {
+          .vs-inner    { flex-direction: column !important; padding: 0 24px !important; gap: 52px !important; }
+          .vs-copy     { max-width: 100% !important; flex: unset !important; }
+          .vs-features { width: 100% !important; }
+        }
+        @media (max-width: 640px) {
+          .vs-inner { padding: 0 24px !important; }
+        }
+      `}</style>
+    </section>
   );
 }

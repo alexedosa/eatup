@@ -38,6 +38,12 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en" className={`${inter.variable} ${instrumentSans.variable} ${playfairDisplay.variable} ${plusJakarta.variable} h-full antialiased`}>
+      <head>
+        <link
+          href="https://api.fontshare.com/v2/css?f[]=creato-display@400,500,700&display=swap"
+          rel="stylesheet"
+        />
+      </head>
       <body className={`min-h-full flex flex-col font-sans`}>
         <ThemeProvider>
           {children}

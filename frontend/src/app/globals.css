@@ -68,6 +68,11 @@ h1, h2, h3, h4, h5, h6, .font-display {
   font-family: var(--font-jakarta), 'Plus Jakarta Sans', sans-serif;
 }
 
+.font-heading {
+  font-family: 'Creato Display', var(--font-jakarta), sans-serif;
+  letter-spacing: -0.03em;
+}
+
 @keyframes blob-drift-1 {
   0%, 100% { transform: translate(0, 0) scale(1) rotate(0deg); }
   33%       { transform: translate(40px, -30px) scale(1.08) rotate(15deg); }
@@ -186,7 +191,7 @@ button, input, select, textarea {
   overflow: hidden;
   border-radius: 4px;
   cursor: pointer;
-  background: #111;
+  background: #e0ddd8;
   width: 100%;
   height: 100%;
   min-height: 0;
@@ -275,97 +280,37 @@ button, input, select, textarea {
 }
 .gallery-card:hover .gc-tag { opacity: 0; }
 
-@media (max-width: 900px) {
+/* Tablet — 3 equal columns, 6 cards = 2 complete rows */
+@media (min-width: 560px) and (max-width: 1024px) {
   .gallery-grid {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(3, 1fr);
     grid-template-rows: auto;
-    width: 100%;
     padding: 0 4%;
     gap: 4px;
   }
-  .g-one   { grid-area: unset; grid-column: span 1; min-height: 240px; }
-  .g-two   { grid-area: unset; grid-column: span 1; min-height: 240px; }
-  .g-three { grid-area: unset; grid-column: span 2; min-height: 260px; }
-  .g-four  { grid-area: unset; grid-column: span 1; min-height: 280px; }
-  .g-five  { grid-area: unset; grid-column: span 1; min-height: 240px; }
-  .g-six   { grid-area: unset; grid-column: span 1; min-height: 240px; }
-
-  .vs-inner {
-    flex-direction: column !important;
-    padding: 0 24px !important;
-    gap: 48px !important;
-  }
-  .vs-mockup { flex: unset !important; width: 100% !important; }
-  .vs-copy   { flex: unset !important; width: 100% !important; }
-}
-
-/* Vendor section CTA */
-.vs-cta {
-  display: inline-flex;
-  align-items: center;
-  padding: 14px 32px;
-  border-radius: 100px;
-  font-size: 15px;
-  font-weight: 700;
-  background: #1DB954;
-  color: #000;
-  text-decoration: none;
-  box-shadow: 0 0 28px rgba(29, 185, 84, 0.35);
-  transition: all 0.2s;
-  margin-bottom: 16px;
-}
-
-.vs-cta:hover {
-  background: #17a349;
-  transform: translateY(-2px);
-  box-shadow: 0 12px 40px rgba(29, 185, 84, 0.48);
-}
-
-/* Vendor mockup — no visible container, fade up on enter */
-.vs-mockup {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  background: transparent;
-  border: none;
-  box-shadow: none;
-  overflow: visible;
-}
-
-.vs-mockup-figure {
-  position: relative;
-  width: 100%;
-  opacity: 0;
-  transform: translateY(56px);
-  filter: drop-shadow(0 28px 56px rgba(0, 0, 0, 0.55));
-}
-
-.vs-mockup-figure.vs-mockup-visible {
-  animation:
-    vsMockupEnter 1.35s cubic-bezier(0.22, 1, 0.36, 1) forwards,
-    hero-float 6s ease-in-out 1.6s infinite;
-}
-
-@keyframes vsMockupEnter {
-  from {
-    opacity: 0;
-    transform: translateY(56px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+  .g-one, .g-two, .g-three, .g-four, .g-five, .g-six {
+    grid-area: unset !important;
+    grid-column: span 1 !important;
+    min-height: 220px;
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .vs-mockup-figure.vs-mockup-visible {
-    opacity: 1;
-    transform: none;
-    animation: none;
+/* Mobile — 2 equal columns, 6 cards = 3 complete rows */
+@media (max-width: 559px) {
+  .gallery-grid {
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: auto;
+    padding: 0 4px;
+    gap: 4px;
+  }
+  .g-one, .g-two, .g-three, .g-four, .g-five, .g-six {
+    grid-area: unset !important;
+    grid-column: span 1 !important;
+    min-height: 180px;
   }
 }
+
+/* Vendor section responsive */
 
 /* Mobile bottom safe area */
 @media (max-width: 768px) {

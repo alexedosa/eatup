@@ -1,17 +1,16 @@
-import LandingNav from "./LandingNav";
-import HeroSection from "./HeroSection";
-import DishTicker from "./DishTicker";
-import FoodGallery from "./FoodGallery";
+import LandingNav      from "./LandingNav";
+import HeroSection     from "./HeroSection";
+import DishTicker      from "./DishTicker";
 import CustomerSection from "./CustomerSection";
-import VendorSection from "./VendorSection";
-import ZenModePanel from "./ZenModePanel";
-import RiderSection from "./RiderSection";
-import CtaBand from "./CtaBand";
-import LandingFooter from "./LandingFooter";
+import FoodGallery     from "./FoodGallery";
+import VendorSection   from "./VendorSection";
+import RiderSection    from "./RiderSection";
+import CtaBand         from "./CtaBand";
+import LandingFooter   from "./LandingFooter";
 
 export default function HomePage() {
   return (
-    <div style={{ background: "#0A0A0A", color: "#FFFFFF", overflowX: "hidden" }}>
+    <div style={{ background: "#FFFFFF", overflowX: "hidden" }}>
       <LandingNav />
       <main>
         <HeroSection />
@@ -19,7 +18,6 @@ export default function HomePage() {
         <CustomerSection />
         <FoodGallery />
         <VendorSection />
-        <ZenModePanel />
         <RiderSection />
         <CtaBand />
       </main>
