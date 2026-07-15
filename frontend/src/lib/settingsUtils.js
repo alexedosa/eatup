@@ -79,7 +79,7 @@ export const INITIAL_SETTINGS_STATE = {
     loginAlerts: true,
     ipWhitelist: [],
     allowedIPs: [],
-    lastPasswordChange: '2025-03-15',
+    lastPasswordChange: '',
     requireStrongPassword: true
   },
   
@@ -104,14 +104,14 @@ export const INITIAL_SETTINGS_STATE = {
   
   // Billing
   billing: {
-    plan: 'free',
+    plan: '',
     planDetails: {
-      name: 'Standard Vendor',
+      name: '',
       price: 0,
-      interval: 'monthly',
-      features: ['Basic analytics']
+      interval: '',
+      features: []
     },
-    subscriptionStatus: 'active',
+    subscriptionStatus: '',
     nextBillingDate: '',
     paymentMethod: null,
     invoices: []

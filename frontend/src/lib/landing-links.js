@@ -11,6 +11,6 @@ export const navLinks = [
 ];
 
 export const navCtas = {
-  vendorLogin: { label: "Vendor Login", href: "/auth/login" },
+  vendorLogin: { label: "Vendor Login", href: "/auth/login?role=vendor" },
   getApp: { label: "Get App", href: "/auth/role-picker" },
 };

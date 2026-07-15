@@ -1,4 +1,5 @@
 import { apiClient } from './api/client';
+import { clearUser } from '../store/auth';
 
 // --- Token Management Helpers ---
 
@@ -41,6 +42,21 @@ export const clearTokens = () => {
     localStorage.removeItem('refreshToken');
     localStorage.removeItem('user');
   }
+  clearUser();
+};
+
+/**
+ * Returns the persisted user profile from local storage, if any.
+ * @returns {object|null}
+ */
+export const getStoredUser = () => {
+  if (typeof window === 'undefined') return null;
+  try {
+    const raw = localStorage.getItem('user');
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
 };
 
 /**
@@ -61,6 +77,21 @@ function buildUserFromRegister(data, result, role) {
       lastName: data.lastName,
       email: data.email,
       phone: data.phone,
+      role: result.role || role,
+      onboardingStatus: result.onboardingStatus,
+    }
+  );
+}
+
+function buildUserFromAuthResult(data, result, role) {
+  return (
+    result.user || {
+      id: result.userId || result.id,
+      userId: result.userId || result.id,
+      firstName: data.firstName,
+      lastName: data.lastName,
+      email: data.email || result.email,
+      phone: data.phone || result.phone,
       role: result.role || role,
       onboardingStatus: result.onboardingStatus,
     }
@@ -100,6 +131,16 @@ export const registerRider = async (data) => {
 };
 
 /**
+ * Authenticate via Google or Apple SSO.
+ * @param {'GOOGLE'|'APPLE'} provider
+ * @param {string} idToken - The ID token from the OAuth provider
+ */
+export const socialLogin = async (provider, idToken) => {
+  const response = await apiClient.post('/auth/social-login', { provider, idToken });
+  return normalizeAuthResponse(response, {}, response.data?.data?.role || 'USER');
+};
+
+/**
  * Log in to an existing account.
  * @param {string} email 
  * @param {string} password 
@@ -107,17 +148,15 @@ export const registerRider = async (data) => {
 export const login = async (email, password) => {
   const response = await apiClient.post('/auth/login', { email, password });
   const result = response.data.data;
-  // Based on your spec: Returns { token, tokenType: "Bearer" }
-  saveTokens(result.token, result.refreshToken || null);
+  saveTokens(result.accessToken || result.token, result.refreshToken || null);
+  result.user = buildUserFromAuthResult({ email }, result, result.role || 'USER');
+  localStorage.setItem('user', JSON.stringify(result.user));
   
-  // If user data isn't in login response, fetch it
-  if (!result.user) {
-    try {
-      const profile = await getProfile();
-      result.user = profile;
-    } catch (e) {
-      console.warn("Could not fetch profile after login");
-    }
+  try {
+    const profile = await getProfile();
+    if (profile) result.user = profile;
+  } catch (e) {
+    console.warn("Could not fetch profile after login");
   }
 
   if (result.user) localStorage.setItem('user', JSON.stringify(result.user));
@@ -142,8 +181,9 @@ export const verifyOTP = async (email, otp) => {
   const response = await apiClient.post('/auth/verify-otp', { email, otp });
   const result = response.data.data;
   
-  if (result.token) {
-    saveTokens(result.token, result.refreshToken || null);
+  const accessToken = result.accessToken || result.token;
+  if (accessToken) {
+    saveTokens(accessToken, result.refreshToken || null);
     
     // Fetch profile to ensure AuthGuard has role info
     try {
@@ -210,8 +250,17 @@ export const refreshAccessToken = async (refreshToken) => {
  * @param {string} refreshToken 
  */
 export const logout = async (refreshToken) => {
-  await apiClient.post('/auth/logout', { refreshToken });
-  clearTokens();
+  try {
+    if (refreshToken) {
+      await apiClient.post('/auth/logout', { refreshToken });
+    }
+  } finally {
+    clearTokens();
+  }
+};
+
+export const logoutCurrentUser = async () => {
+  await logout(getRefreshToken());
 };
 
 /**

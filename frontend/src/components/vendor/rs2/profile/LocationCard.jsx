@@ -114,13 +114,19 @@ export default function LocationCard({ address, onUpdate }) {
                 <Location size="24" variant="Bulk" />
               </div>
               <div className="flex-1">
-                <p className="text-sm font-black text-stone-800 dark:text-white leading-tight">{address.street}</p>
-                <p className="text-xs font-bold text-stone-500 dark:text-stone-400 mt-1 uppercase tracking-widest">{address.city}, {address.state} {address.postalCode}</p>
-                <p className="text-[10px] font-bold text-amber-500 uppercase tracking-[0.2em] mt-1.5">{address.country}</p>
+                <p className="text-sm font-black text-stone-800 dark:text-white leading-tight">{address.street || 'No address set'}</p>
+                {(address.city || address.state || address.postalCode) && (
+                  <p className="text-xs font-bold text-stone-500 dark:text-stone-400 mt-1 uppercase tracking-widest">
+                    {[address.city, address.state, address.postalCode].filter(Boolean).join(', ')}
+                  </p>
+                )}
+                {address.country && (
+                  <p className="text-[10px] font-bold text-amber-500 uppercase tracking-[0.2em] mt-1.5">{address.country}</p>
+                )}
               </div>
             </div>
             
-            {/* Map Preview (mock) */}
+            {/* Map Preview */}
             <div className="relative h-48 rounded-[2rem] bg-gradient-to-br from-amber-100/50 to-orange-100/50 dark:from-amber-500/5 dark:to-orange-500/5 border border-stone-100 dark:border-white/10 overflow-hidden flex items-center justify-center">
               <div className="absolute inset-0 opacity-10 dark:opacity-20 pointer-events-none">
                 {/* Visual grid hint */}

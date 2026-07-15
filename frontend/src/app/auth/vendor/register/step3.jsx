@@ -62,21 +62,42 @@ export default function Step3({
     setLoading(true);
     setError("");
     try {
-      // 1. Upload document first
+      // 1. Ensure the vendor profile record exists — required by the backend
+      //    before any /vendor/profile/cac-document upload can succeed.
+      //    Uses the access token saved in localStorage (and optionally formData)
+      //    from the registration step.
+      try {
+        await api.vendor.submitProfile({
+          businessName: formData.businessName || "",
+          contactPhone: formData.phone || "",
+          contactEmail: formData.email || "",
+        });
+      } catch (profileErr) {
+        // A 409 / "already exists" response means the profile was created on a
+        // previous attempt — that's fine, we can proceed with the CAC upload.
+        const msg = profileErr.message || "";
+        const isAlreadyExists =
+          msg.toLowerCase().includes("already") ||
+          msg.toLowerCase().includes("exist") ||
+          msg.toLowerCase().includes("duplicate");
+        if (!isAlreadyExists) throw profileErr;
+      }
+
+      // 2. Upload the CAC / business document
       const uploadRes = await api.vendorOnboarding.uploadCacDocument(info.documentImage);
-      
+
       if (uploadRes.success) {
-        // 2. Save step 3 data
+        // 3. Save step-3 verification data to the onboarding session
         const body = {
           description: info.description,
           licenseNumber: info.licenseNumber,
           document: {
-            fileKey: uploadRes.data.fileKey,
-            fileUrl: uploadRes.data.fileUrl,
-            fileType: info.documentImage.type
-          }
+            fileKey: uploadRes.data?.fileKey || "",
+            fileUrl: uploadRes.data?.fileUrl || uploadRes.data?.url || "",
+            fileType: info.documentImage.type,
+          },
         };
-        
+
         const res = await api.vendorOnboarding.step3(onboardingId, body);
         if (res.success) {
           updateFormData(info);

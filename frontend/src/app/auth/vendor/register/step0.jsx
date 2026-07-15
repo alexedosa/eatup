@@ -43,7 +43,9 @@ export default function Step0({ nextStep, updateFormData }) {
       
       if (res.success) {
         toast.success("Account created! Let's continue with your profile.");
-        updateFormData(form);
+        // Store the access token in form state so it's available throughout
+        // all subsequent onboarding steps, as a reliable fallback alongside localStorage.
+        updateFormData({ ...form, accessToken: res.data?.accessToken || res.data?.token });
         nextStep();
       } else {
         throw new Error(res.message || "Registration failed");

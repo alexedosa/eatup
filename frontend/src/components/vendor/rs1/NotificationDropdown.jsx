@@ -1,8 +1,39 @@
 "use client"
+import { useLayoutEffect, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { motion } from 'framer-motion'
 import { TickCircle, Timer1, Danger, InfoCircle } from 'iconsax-reactjs'
 
-export default function NotificationDropdown({ isOpen, onClose, notifications = [] }) {
+export default function NotificationDropdown({ isOpen, onClose, notifications = [], onMarkRead, onMarkAllRead, anchorRef }) {
+  const [position, setPosition] = useState({ top: 80, right: 24 })
+
+  useLayoutEffect(() => {
+    if (!isOpen || typeof window === 'undefined') return undefined
+
+    const updatePosition = () => {
+      const rect = anchorRef?.current?.getBoundingClientRect()
+      if (!rect) return
+
+      const panelWidth = window.innerWidth < 768 ? Math.min(window.innerWidth - 32, 320) : 384
+      const right = Math.max(16, window.innerWidth - rect.right)
+      const leftOverflow = window.innerWidth - right - panelWidth < 16
+
+      setPosition({
+        top: rect.bottom + 10,
+        right: leftOverflow ? 16 : right,
+      })
+    }
+
+    updatePosition()
+    window.addEventListener('resize', updatePosition)
+    window.addEventListener('scroll', updatePosition, true)
+
+    return () => {
+      window.removeEventListener('resize', updatePosition)
+      window.removeEventListener('scroll', updatePosition, true)
+    }
+  }, [anchorRef, isOpen])
+
   if (!isOpen) return null
 
   const getIcon = (type) => {
@@ -14,8 +45,13 @@ export default function NotificationDropdown({ isOpen, onClose, notifications = 
     }
   }
 
-  return (
-    <div className="absolute right-0 top-full mt-2 w-80 md:w-96 z-[300]">
+  if (typeof document === 'undefined') return null
+
+  return createPortal(
+    <div
+      className="fixed z-[10000] w-[min(calc(100vw-2rem),20rem)] md:w-96"
+      style={{ top: position.top, right: position.right }}
+    >
       <motion.div
         initial={{ opacity: 0, y: -10, scale: 0.95 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -39,6 +75,7 @@ export default function NotificationDropdown({ isOpen, onClose, notifications = 
               {notifications.map((notif) => (
                 <div 
                   key={notif.id}
+                  onClick={() => !notif.read && onMarkRead?.(notif.id)}
                   className={`p-4 flex gap-3 hover:bg-stone-50 dark:hover:bg-white/5 transition-colors cursor-pointer ${!notif.read ? 'bg-amber-50/30 dark:bg-amber-500/5' : ''}`}
                 >
                   <div className="shrink-0 mt-0.5">
@@ -58,7 +95,10 @@ export default function NotificationDropdown({ isOpen, onClose, notifications = 
           )}
         </div>
 
-        <button className="w-full p-3 text-[10px] font-black uppercase tracking-[0.15em] text-amber-500 hover:bg-amber-50 dark:hover:bg-white/5 transition-colors border-t border-stone-100 dark:border-white/5">
+        <button
+          onClick={onMarkAllRead}
+          className="w-full p-3 text-[10px] font-black uppercase tracking-[0.15em] text-amber-500 hover:bg-amber-50 dark:hover:bg-white/5 transition-colors border-t border-stone-100 dark:border-white/5"
+        >
           Mark all as read
         </button>
       </motion.div>
@@ -69,5 +109,6 @@ export default function NotificationDropdown({ isOpen, onClose, notifications = 
         onClick={onClose}
       />
     </div>
+    , document.body
   )
 }

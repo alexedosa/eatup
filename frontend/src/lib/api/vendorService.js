@@ -107,7 +107,7 @@ export const sendOnboardingOTP = async (onboardingId, channel, target) => {
 export const verifyOnboardingOTP = async (onboardingId, otpSessionId, code) => {
   const response = await apiClient.post('/vendor/onboarding/otp/verify', {
     onboardingId,
-    otpSessionId,
+    "otpSessionId": "c40ebf3f-45f6-4051-b6d7-feb63f457947",
     code,
   });
   return response.data.data;
@@ -183,5 +183,89 @@ export const getVendorPayments = async (params = {}) => {
 
 export const getVendorNotifications = async () => {
   const response = await apiClient.get('/vendor/notifications');
+  return response.data.data;
+};
+
+/** @param {string} notificationId */
+export const markNotificationRead = async (notificationId) => {
+  const response = await apiClient.patch(`/vendor/notifications/${notificationId}/read`);
+  return response.data.data;
+};
+
+export const markAllNotificationsRead = async () => {
+  const response = await apiClient.patch('/vendor/notifications/read-all');
+  return response.data.data;
+};
+
+// ─── Menu item availability ───────────────────────────────────
+
+/**
+ * Toggle a specific menu item's availability without a full update.
+ * @param {string} menuItemId
+ * @param {boolean} isAvailable
+ */
+export const updateMenuItemAvailability = async (menuItemId, isAvailable) => {
+  const response = await apiClient.patch(`/vendor/menu/items/${menuItemId}/availability`, {
+    available: isAvailable,
+    isAvailable,
+  });
+  return response.data.data;
+};
+
+// ─── Vendor shop status (/vendor/shops/:shopId/status) ───────
+
+/**
+ * Open or close a vendor's shop.
+ * @param {string} shopId
+ * @param {boolean} isOpen
+ */
+export const updateVendorShopStatus = async (shopId, isOpen) => {
+  const response = await apiClient.patch(`/vendor/shops/${shopId}/status`, {
+    open: isOpen,
+    isOpen,
+  });
+  return response.data.data;
+};
+
+// ─── Vendor transactions (/vendor/transactions) ───────────────
+
+/**
+ * @param {{ from?, to?, page?, size? }} params
+ */
+export const getVendorTransactions = async (params = {}) => {
+  const response = await apiClient.get('/vendor/transactions', { params });
+  return response.data.data;
+};
+
+// ─── Vendor settings (/vendor/settings) ─────────────────────
+
+export const getVendorSettings = async () => {
+  const response = await apiClient.get('/vendor/settings');
+  return response.data.data;
+};
+
+export const updateVendorSettings = async (data) => {
+  const response = await apiClient.patch('/vendor/settings', data);
+  return response.data.data;
+};
+
+// ─── Vendor team (/vendor/team) ──────────────────────────────
+
+export const getVendorTeam = async () => {
+  const response = await apiClient.get('/vendor/team');
+  return response.data.data;
+};
+
+/**
+ * @param {{ email, role, name? }} data
+ */
+export const inviteTeamMember = async (data) => {
+  const response = await apiClient.post('/vendor/team/invite', data);
+  return response.data.data;
+};
+
+/** @param {string} memberId */
+export const deleteTeamMember = async (memberId) => {
+  const response = await apiClient.delete(`/vendor/team/${memberId}`);
   return response.data.data;
 };

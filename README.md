@@ -39,12 +39,10 @@ This document defines every HTTP API contract required by the EatUp web applicat
 | Auth scheme | Bearer JWT (`Authorization: Bearer <token>`) |
 | Response envelope | `{ success?, message?, data: T }` |
 | Timeout | 30 seconds (client default) |
-| Mock mode | Set `NEXT_PUBLIC_MOCK_VIEW=true` to bypass backend |
 
 ### Environment Variables
 
 ```env
-NEXT_PUBLIC_MOCK_VIEW=true|false
 NEXT_PUBLIC_API_BASE_URL=https://eatup-backend-byng.onrender.com/api/v1
 NEXT_PUBLIC_RIDER_APP_URL=https://eatup.app/download
 ```

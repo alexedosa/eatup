@@ -7,7 +7,9 @@ export default function LeftColumn({
   isExpanded, 
   activeView, 
   onViewChange, 
-  onToggleSidebar 
+  onToggleSidebar,
+  showShopSetupNudge = false,
+  onShopSetupNudgeClick,
 }) {
   return (
     <div className={`fixed inset-y-0 left-[clamp(16px,3vw,32px)] z-[200] hidden md:flex flex-col items-start justify-between py-6 pointer-events-none`}>
@@ -35,6 +37,8 @@ export default function LeftColumn({
       <div className="shrink-0 flex items-center justify-center w-20 pointer-events-auto">
         <UtilityButton 
           onClick={() => {}}
+          showProfileNudge={showShopSetupNudge}
+          onProfileNudgeClick={onShopSetupNudgeClick}
         />
       </div>
     </div>

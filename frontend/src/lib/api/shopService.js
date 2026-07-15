@@ -1,4 +1,5 @@
 import { apiClient, validateFile } from './client';
+import { normalizeShopsList } from '../shopUtils';
 
 export const createShop = async (data) => {
   const response = await apiClient.post('/shops', data);
@@ -66,5 +67,5 @@ export const getProductsUnderShop = async (shopId, params = {}) => {
 
 export const getMyShops = async () => {
   const response = await apiClient.get('/shops/my');
-  return response.data.data;
+  return normalizeShopsList(response.data.data);
 };

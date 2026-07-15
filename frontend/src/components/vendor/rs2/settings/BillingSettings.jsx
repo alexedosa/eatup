@@ -4,6 +4,9 @@ import Image from 'next/image'
 
 export default function BillingSettings({ settings }) {
   const { billing } = settings
+  const hasPlan = Boolean(billing.planDetails?.name)
+  const hasPaymentMethod = Boolean(billing.paymentMethod?.last4)
+  const invoices = billing.invoices || []
   
   return (
     <div className="space-y-8">
@@ -33,16 +36,26 @@ export default function BillingSettings({ settings }) {
             
             <div className="relative z-10">
               <span className="px-3 py-1 rounded-full bg-amber-500 text-[9px] font-black uppercase tracking-widest text-white mb-4 inline-block">Current Plan</span>
-              <h4 className="text-3xl font-display font-black tracking-tight mb-2">{billing.planDetails.name}</h4>
-              <p className="text-stone-400 text-sm mb-8 font-medium">Next billing on <span className="text-white font-black">{billing.nextBillingDate}</span></p>
+              <h4 className="text-3xl font-display font-black tracking-tight mb-2">
+                {hasPlan ? billing.planDetails.name : 'No active plan'}
+              </h4>
+              <p className="text-stone-400 text-sm mb-8 font-medium">
+                {billing.nextBillingDate
+                  ? <>Next billing on <span className="text-white font-black">{billing.nextBillingDate}</span></>
+                  : 'Billing details will appear once a subscription is active'}
+              </p>
               
               <div className="space-y-3 mb-8">
-                {billing.planDetails.features.map((feature, idx) => (
-                  <div key={idx} className="flex items-center gap-2">
-                    <TickCircle size="16" className="text-amber-500" variant="Bold" />
-                    <span className="text-xs font-bold text-stone-300 uppercase tracking-tight">{feature}</span>
-                  </div>
-                ))}
+                {(billing.planDetails?.features || []).length > 0 ? (
+                  billing.planDetails.features.map((feature, idx) => (
+                    <div key={idx} className="flex items-center gap-2">
+                      <TickCircle size="16" className="text-amber-500" variant="Bold" />
+                      <span className="text-xs font-bold text-stone-300 uppercase tracking-tight">{feature}</span>
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-xs font-bold text-stone-400 uppercase tracking-tight">No plan features listed yet</p>
+                )}
               </div>
               
               <button className="w-full py-4 rounded-2xl bg-white text-stone-900 text-xs font-black uppercase tracking-[0.2em] hover:bg-amber-400 transition-all">Upgrade Plan</button>
@@ -63,13 +76,19 @@ export default function BillingSettings({ settings }) {
               </div>
               
               <div className="flex items-center gap-4 bg-white dark:bg-stone-900 p-4 rounded-2xl border border-stone-100 dark:border-white/10 shadow-sm">
-                <div className="w-10 h-7 rounded-md bg-stone-800 flex items-center justify-center">
-                  <span className="text-[8px] font-black text-white italic">VISA</span>
-                </div>
-                <div>
-                  <p className="text-xs font-black text-stone-900 dark:text-white tracking-tight">•••• •••• •••• {billing.paymentMethod.last4}</p>
-                  <p className="text-[9px] font-bold text-stone-400 uppercase tracking-widest">Expires {billing.paymentMethod.expiryDate}</p>
-                </div>
+                {hasPaymentMethod ? (
+                  <>
+                    <div className="w-10 h-7 rounded-md bg-stone-800 flex items-center justify-center">
+                      <span className="text-[8px] font-black text-white italic">VISA</span>
+                    </div>
+                    <div>
+                      <p className="text-xs font-black text-stone-900 dark:text-white tracking-tight">•••• •••• •••• {billing.paymentMethod.last4}</p>
+                      <p className="text-[9px] font-bold text-stone-400 uppercase tracking-widest">Expires {billing.paymentMethod.expiryDate}</p>
+                    </div>
+                  </>
+                ) : (
+                  <p className="text-xs font-bold text-stone-400 uppercase tracking-widest">No payment method on file</p>
+                )}
               </div>
             </div>
 
@@ -83,18 +102,22 @@ export default function BillingSettings({ settings }) {
               </div>
               
               <div className="space-y-2">
-                {billing.invoices.map(invoice => (
-                  <div key={invoice.id} className="flex items-center justify-between py-2 border-b border-stone-100 dark:border-white/5 last:border-0">
-                    <div>
-                      <p className="text-xs font-black text-stone-800 dark:text-white uppercase tracking-tight">{invoice.id}</p>
-                      <p className="text-[9px] font-bold text-stone-400 uppercase tracking-widest">{invoice.date}</p>
+                {invoices.length > 0 ? (
+                  invoices.map(invoice => (
+                    <div key={invoice.id} className="flex items-center justify-between py-2 border-b border-stone-100 dark:border-white/5 last:border-0">
+                      <div>
+                        <p className="text-xs font-black text-stone-800 dark:text-white uppercase tracking-tight">{invoice.id}</p>
+                        <p className="text-[9px] font-bold text-stone-400 uppercase tracking-widest">{invoice.date}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-xs font-black text-stone-800 dark:text-white uppercase tracking-tight">₦{invoice.amount.toLocaleString()}</p>
+                        <button className="text-[9px] font-black uppercase tracking-widest text-amber-600 dark:text-amber-400">Download</button>
+                      </div>
                     </div>
-                    <div className="text-right">
-                      <p className="text-xs font-black text-stone-800 dark:text-white uppercase tracking-tight">₦{invoice.amount.toLocaleString()}</p>
-                      <button className="text-[9px] font-black uppercase tracking-widest text-amber-600 dark:text-amber-400">Download</button>
-                    </div>
-                  </div>
-                ))}
+                  ))
+                ) : (
+                  <p className="text-xs font-bold text-stone-400 uppercase tracking-widest py-2">No invoices yet</p>
+                )}
               </div>
             </div>
           </div>

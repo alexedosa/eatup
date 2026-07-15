@@ -9,6 +9,19 @@ import { toast } from "react-hot-toast";
 const OTP_LENGTH = 6;
 const RESEND_TIMER = 30;
 
+function maskEmail(email) {
+  if (!email || !email.includes("@")) return "your email";
+
+  const [local, domain] = email.split("@");
+  if (local.length <= 2) {
+    return `${local[0] || ""}***@${domain}`;
+  }
+
+  const visibleStart = Math.min(3, local.length - 2);
+  const visibleEnd = 2;
+  return `${local.slice(0, visibleStart)}***${local.slice(-visibleEnd)}@${domain}`;
+}
+
 export default function Step4({ nextStep, prevStep, updateFormData, formData, onboardingId }) {
   const [otpSessionId, setOtpSessionId] = useState(null);
   const [otp, setOtp] = useState(Array(OTP_LENGTH).fill(""));
@@ -35,13 +48,12 @@ export default function Step4({ nextStep, prevStep, updateFormData, formData, on
   }, []);
 
   const handleSendOtp = async () => {
-    if (!onboardingId) return;
+    if (!onboardingId || !formData.email) return;
     try {
-      const target = formData.phone || formData.email;
-      const channel = formData.phone ? "sms" : "email";
-      const data = await sendOnboardingOTP(onboardingId, channel, target);
+      const target = formData.email;
+      const data = await sendOnboardingOTP(onboardingId, "email", target);
       setOtpSessionId(data.otpSessionId);
-      toast.success(`OTP sent to ${target}`);
+      toast.success(`Code sent to ${maskEmail(target)}`);
     } catch (err) {
       toast.error(err.message || "Failed to send OTP");
     }
@@ -132,9 +144,7 @@ export default function Step4({ nextStep, prevStep, updateFormData, formData, on
     }
   };
 
-  const maskedContact = formData.phone
-    ? `${formData.countryCode || "+234"} ${formData.phone.slice(0, 3)}****${formData.phone.slice(-2)}`
-    : formData.email || "your contact";
+  const maskedEmail = maskEmail(formData.email);
 
   return (
     <div className="auth-page">
@@ -170,10 +180,10 @@ export default function Step4({ nextStep, prevStep, updateFormData, formData, on
 
         <h1 className="auth-title" style={{ fontSize: 24 }}>Verify your identity</h1>
         <p className="auth-subtitle" style={{ marginBottom: 8 }}>
-          Enter the 6-digit code sent to
+          Enter the 6-digit code sent to your email
         </p>
         <p style={{ fontSize: 13, fontWeight: 600, color: "var(--auth-text)", marginBottom: 28 }}>
-          {maskedContact}
+          {maskedEmail}
         </p>
 
         {/* OTP Split Boxes */}

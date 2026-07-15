@@ -21,3 +21,12 @@ export const getCountryCodes = async () => {
   const response = await apiClient.get('/reference/country-codes');
   return response.data.data;
 };
+
+/**
+ * Fetches the list of supported banks (for settlement account setup).
+ * @returns {Promise<Array<{ name, code }>>}
+ */
+export const getBanks = async () => {
+  const response = await apiClient.get('/reference/banks');
+  return response.data.data;
+};

@@ -5,6 +5,12 @@ import * as referenceActions from '../referenceService';
 import * as adminActions from '../adminService';
 import * as vendorService from './vendorService';
 import * as shopService from './shopService';
+import * as cartActions from '../cartService';
+import * as ordersActions from '../ordersService';
+import * as paymentsActions from '../paymentsService';
+import * as couponsActions from '../couponsService';
+import * as riderActions from '../riderService';
+import * as emailsActions from '../emailsService';
 import { apiClient } from './client';
 
 export { apiClient, invalidateApiCache } from './client';
@@ -32,13 +38,23 @@ export const {
   addMenuItem,
   updateMenuItem,
   deleteMenuItem,
+  updateMenuItemAvailability,
   listVendorOrders,
   getVendorOrder,
   updateOrderStatus,
   getVendorDashboardStats,
   getAnalyticsOverview,
   getVendorPayments,
+  getVendorTransactions,
   getVendorNotifications,
+  markNotificationRead,
+  markAllNotificationsRead,
+  updateVendorShopStatus,
+  getVendorSettings,
+  updateVendorSettings,
+  getVendorTeam,
+  inviteTeamMember,
+  deleteTeamMember,
 } = vendorService;
 
 export const {
@@ -97,12 +113,14 @@ export const api = {
     register: authActions.registerVendor,
     registerRider: authActions.registerRider,
     login: authActions.login,
+    socialLogin: authActions.socialLogin,
     sendOtp: authActions.sendOTP,
     verifyOtp: authActions.verifyOTP,
     verifyRegistrationOtp: authActions.verifyRegistrationOtp,
     createAccount: authActions.createAccount,
     refresh: authActions.refreshAccessToken,
     logout: authActions.logout,
+    logoutCurrentUser: authActions.logoutCurrentUser,
     getProfile: authActions.getProfile,
     updateProfile: authActions.updateProfile,
     getAddresses: authActions.getAddresses,
@@ -125,6 +143,7 @@ export const api = {
     verifyBusinessNumber,
     verifySettlementAccount,
     createPaystackSubaccount,
+    updateShopStatus: updateVendorShopStatus,
     orders: {
       list: listVendorOrders,
       get: getVendorOrder,
@@ -135,6 +154,7 @@ export const api = {
       add: addMenuItem,
       update: updateMenuItem,
       delete: deleteMenuItem,
+      updateAvailability: updateMenuItemAvailability,
     },
     analytics: {
       overview: getAnalyticsOverview,
@@ -142,8 +162,22 @@ export const api = {
     payments: {
       list: getVendorPayments,
     },
+    transactions: {
+      list: getVendorTransactions,
+    },
     notifications: {
       list: getVendorNotifications,
+      markRead: markNotificationRead,
+      markAllRead: markAllNotificationsRead,
+    },
+    settings: {
+      get: getVendorSettings,
+      update: updateVendorSettings,
+    },
+    team: {
+      list: getVendorTeam,
+      invite: inviteTeamMember,
+      delete: deleteTeamMember,
     },
     dashboardStats: getVendorDashboardStats,
     onboarding: {
@@ -184,6 +218,54 @@ export const api = {
     getCategories: productActions.getProductCategories,
   },
 
+  cart: {
+    get: cartActions.getCart,
+    addItem: cartActions.addCartItem,
+    updateItem: cartActions.updateCartItemQuantity,
+    removeItem: cartActions.removeCartItem,
+    clear: cartActions.clearCart,
+    applyCoupon: cartActions.applyCartCoupon,
+    validate: cartActions.validateCart,
+  },
+
+  orders: {
+    create: ordersActions.createOrder,
+    getMy: ordersActions.getMyOrders,
+    getById: ordersActions.getOrderById,
+    listAll: ordersActions.listAllOrders,
+    cancel: ordersActions.cancelOrder,
+    getStatus: ordersActions.getOrderStatus,
+    track: ordersActions.trackOrder,
+  },
+
+  payments: {
+    getMethods: paymentsActions.getPaymentMethods,
+    initiate: paymentsActions.initiatePayment,
+    initialize: paymentsActions.initializePayment,
+    confirm: paymentsActions.confirmPayment,
+    verify: paymentsActions.verifyPayment,
+    getHistory: paymentsActions.getPaymentHistory,
+  },
+
+  coupons: {
+    create: couponsActions.createCoupon,
+    list: couponsActions.listCoupons,
+    getById: couponsActions.getCouponById,
+    getByCode: couponsActions.getCouponByCode,
+    update: couponsActions.updateCoupon,
+    delete: couponsActions.deleteCoupon,
+    getUsage: couponsActions.getCouponUsage,
+  },
+
+  rider: {
+    getMe: riderActions.getRiderMe,
+    updateAvailability: riderActions.updateRiderAvailability,
+    getAvailableOrders: riderActions.getAvailableRiderOrders,
+    acceptOrder: riderActions.acceptRiderOrder,
+    updateOrderStatus: riderActions.updateRiderOrderStatus,
+    getEarnings: riderActions.getRiderEarnings,
+  },
+
   uploads: {
     getPresignedUrl: uploadActions.getPresignedUploadUrl,
   },
@@ -191,6 +273,11 @@ export const api = {
   reference: {
     getVendorCategories: referenceActions.getVendorCategories,
     getCountryCodes: referenceActions.getCountryCodes,
+    getBanks: referenceActions.getBanks,
+  },
+
+  emails: {
+    send: emailsActions.sendEmail,
   },
 
   admin: {

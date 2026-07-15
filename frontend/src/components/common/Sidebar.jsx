@@ -246,11 +246,11 @@ export default function Sidebar({ mobileOpen, onClose }) {
         <div className="px-4 py-4 border-t border-surface-100 shrink-0">
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-full bg-surface-200 flex items-center justify-center text-xs font-bold text-surface-600">
-              MT
+              {vendorInfo.logo}
             </div>
             <div className="min-w-0 flex-1">
               <p className="text-xs font-semibold text-surface-800 truncate">
-                Mama Titi
+                {vendorInfo.name}
               </p>
               <p className="text-xs text-surface-400">Store Owner</p>
             </div>

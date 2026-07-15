@@ -2,24 +2,33 @@
 import { motion } from 'framer-motion'
 import CountUp from 'react-countup'
 
-export default function KPICard({ label, value, previous, change, trend, prefix = '', suffix = '', formatValue }) {
-  const changeColor = trend === 'up' ? 'text-green-600' : 'text-red-500'
-  const changeIcon = trend === 'up' ? '↑' : '↓'
-  
+export default function KPICard({ label, value, change = 0, trend = 'up', prefix = '', suffix = '', formatValue }) {
+  const isUp = trend === 'up'
+  const changeColor = isUp ? 'text-green-600 dark:text-green-400' : 'text-red-500 dark:text-red-400'
+  const changeIcon = isUp ? '↑' : '↓'
+  const renderValue = (num) => {
+    if (formatValue) return formatValue(num)
+    return `${prefix}${new Intl.NumberFormat('en-NG').format(num || 0)}${suffix}`
+  }
+
   return (
     <motion.div
       whileHover={{ y: -2 }}
-      className="bg-white dark:bg-[#1a1c1e] rounded-2xl p-5 border border-stone-200 dark:border-white/10 shadow-sm"
+      className="flex min-h-[150px] flex-col justify-between rounded-2xl border border-stone-200 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-[#1a1c1e]"
     >
-      <p className="text-[10px] font-black text-stone-400 dark:text-stone-500 uppercase tracking-widest">{label}</p>
-      <p className="text-2xl font-bold text-stone-900 dark:text-white mt-2">
-        <CountUp end={value} duration={1.5} separator="," prefix={prefix} suffix={suffix} />
+      <p className="text-[10px] font-black uppercase tracking-widest text-stone-400 dark:text-stone-500">
+        {label}
       </p>
-      <div className="flex items-center gap-2 mt-2">
+      <p className="mt-3 text-2xl font-black tracking-tight text-stone-900 dark:text-white">
+        <CountUp end={Number(value) || 0} duration={1.2} formattingFn={renderValue} />
+      </p>
+      <div className="mt-3 flex flex-wrap items-center gap-2">
         <span className={`text-xs font-bold ${changeColor}`}>
-          {changeIcon} {Math.abs(change)}%
+          {changeIcon} {Math.abs(Number(change) || 0)}%
         </span>
-        <span className="text-[10px] text-stone-400 dark:text-stone-500 font-medium">vs last period</span>
+        <span className="text-[10px] font-medium text-stone-400 dark:text-stone-500">
+          vs last period
+        </span>
       </div>
     </motion.div>
   )

@@ -70,7 +70,7 @@ export default function PreviewCard({ profile, isOpenNow }) {
             </div>
             <div className="flex flex-col">
               <span className="text-[10px] font-bold text-white/60 uppercase tracking-widest leading-none mb-1">
-                Today's Hours
+                Today&apos;s Hours
               </span>
               <div className="flex items-center gap-2">
                 <span className="text-sm font-black tracking-tight">
@@ -113,7 +113,9 @@ export default function PreviewCard({ profile, isOpenNow }) {
                 Main Branch
               </span>
               <span className="text-sm font-black tracking-tight">
-                {profile.address.city}, {profile.address.state}
+                {profile.address.city || profile.address.state
+                  ? [profile.address.city, profile.address.state].filter(Boolean).join(', ')
+                  : profile.address.street || 'Location not set'}
               </span>
             </div>
           </div>

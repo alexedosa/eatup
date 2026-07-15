@@ -1,4 +1,5 @@
 import { apiClient } from './api/client';
+import { normalizeProductsList } from './productUtils';
 
 export const createProduct = async (data) => {
   const response = await apiClient.post('/products', data);
@@ -24,7 +25,7 @@ export const listProductsByShop = async (shopId, params = {}) => {
   const query = new URLSearchParams(params).toString();
   const endpoint = `/products/shop/${shopId}${query ? `?${query}` : ''}`;
   const response = await apiClient.get(endpoint);
-  return response.data.data;
+  return normalizeProductsList(response.data.data);
 };
 
 export const filterProductsByCategory = async (shopId, category) => {

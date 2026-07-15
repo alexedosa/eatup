@@ -1,33 +1,89 @@
 // src/hooks/useSettingsManagement.js
 import { useState, useCallback, useEffect } from 'react'
 import { INITIAL_SETTINGS_STATE } from '@/lib/settingsUtils'
+import { api } from '@/lib/api'
 import toast from 'react-hot-toast'
 
-const STORAGE_KEY = 'eatup_vendor_settings'
+function mergeSettings(serverSettings) {
+  if (!serverSettings || typeof serverSettings !== 'object') {
+    return INITIAL_SETTINGS_STATE
+  }
 
-function loadSettings() {
-  if (typeof window === 'undefined') return INITIAL_SETTINGS_STATE
-  try {
-    const stored = localStorage.getItem(STORAGE_KEY)
-    if (stored) return JSON.parse(stored)
-  } catch {}
-  return INITIAL_SETTINGS_STATE
+  return {
+    ...INITIAL_SETTINGS_STATE,
+    ...serverSettings,
+    general: { ...INITIAL_SETTINGS_STATE.general, ...serverSettings.general },
+    orders: { ...INITIAL_SETTINGS_STATE.orders, ...serverSettings.orders },
+    delivery: { ...INITIAL_SETTINGS_STATE.delivery, ...serverSettings.delivery },
+    notifications: {
+      email: {
+        ...INITIAL_SETTINGS_STATE.notifications.email,
+        ...serverSettings.notifications?.email,
+      },
+      push: {
+        ...INITIAL_SETTINGS_STATE.notifications.push,
+        ...serverSettings.notifications?.push,
+      },
+      sound: {
+        ...INITIAL_SETTINGS_STATE.notifications.sound,
+        ...serverSettings.notifications?.sound,
+      },
+    },
+    security: { ...INITIAL_SETTINGS_STATE.security, ...serverSettings.security },
+    integrations: {
+      printServer: {
+        ...INITIAL_SETTINGS_STATE.integrations.printServer,
+        ...serverSettings.integrations?.printServer,
+      },
+      posSystem: {
+        ...INITIAL_SETTINGS_STATE.integrations.posSystem,
+        ...serverSettings.integrations?.posSystem,
+      },
+      accountingSoftware: {
+        ...INITIAL_SETTINGS_STATE.integrations.accountingSoftware,
+        ...serverSettings.integrations?.accountingSoftware,
+      },
+    },
+    billing: {
+      ...INITIAL_SETTINGS_STATE.billing,
+      ...serverSettings.billing,
+      planDetails: {
+        ...INITIAL_SETTINGS_STATE.billing.planDetails,
+        ...serverSettings.billing?.planDetails,
+      },
+    },
+  }
 }
 
 export function useSettingsManagement() {
-  const [settings, setSettings] = useState(() => loadSettings())
+  const [settings, setSettings] = useState(INITIAL_SETTINGS_STATE)
   const [activeCategory, setActiveCategory] = useState('general')
   const [isSaving, setIsSaving] = useState(false)
   const [isAddingStaff, setIsAddingStaff] = useState(false)
+  const [team, setTeam] = useState([])
+  const [isLoadingTeam, setIsLoadingTeam] = useState(true)
 
-  // Persist to localStorage whenever settings change
   useEffect(() => {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(settings))
-    } catch {}
-  }, [settings])
-  
-  // Update general settings
+    const loadFromApi = async () => {
+      setIsLoadingTeam(true)
+      try {
+        const [serverSettings, teamData] = await Promise.all([
+          api.vendor.settings.get().catch(() => null),
+          api.vendor.team.list().catch(() => []),
+        ])
+        if (serverSettings) {
+          setSettings(mergeSettings(serverSettings))
+        }
+        setTeam(Array.isArray(teamData) ? teamData : [])
+      } catch {
+        toast.error('Failed to load settings')
+      } finally {
+        setIsLoadingTeam(false)
+      }
+    }
+    loadFromApi()
+  }, [])
+
   const updateGeneralSetting = useCallback((key, value) => {
     setSettings(prev => ({
       ...prev,
@@ -36,7 +92,6 @@ export function useSettingsManagement() {
     toast.success('General setting updated', { id: 'settings-update' })
   }, [])
   
-  // Update order settings
   const updateOrderSetting = useCallback((key, value) => {
     setSettings(prev => ({
       ...prev,
@@ -45,7 +100,6 @@ export function useSettingsManagement() {
     toast.success('Order setting updated', { id: 'settings-update' })
   }, [])
   
-  // Update delivery settings
   const updateDeliverySetting = useCallback((key, value) => {
     setSettings(prev => ({
       ...prev,
@@ -54,18 +108,6 @@ export function useSettingsManagement() {
     toast.success('Delivery setting updated', { id: 'settings-update' })
   }, [])
   
-  // Update notification settings
-  const updateNotificationSetting = useCallback((category, key, value) => {
-    setSettings(prev => ({
-      ...prev,
-      notifications: {
-        ...prev.notifications,
-        [category]: { ...prev.notifications[category], [key]: value }
-      }
-    }))
-  }, [])
-  
-  // Toggle email notification
   const toggleEmailNotification = useCallback((key) => {
     setSettings(prev => ({
       ...prev,
@@ -76,7 +118,6 @@ export function useSettingsManagement() {
     }))
   }, [])
   
-  // Toggle push notification
   const togglePushNotification = useCallback((key) => {
     setSettings(prev => ({
       ...prev,
@@ -87,7 +128,6 @@ export function useSettingsManagement() {
     }))
   }, [])
   
-  // Toggle sound notification
   const toggleSoundNotification = useCallback((key) => {
     setSettings(prev => ({
       ...prev,
@@ -98,52 +138,48 @@ export function useSettingsManagement() {
     }))
   }, [])
   
-  // Add team member
-  const addTeamMember = useCallback((member) => {
-    const newMember = {
-      id: `staff_${Date.now()}`,
-      ...member,
-      addedAt: new Date().toISOString().split('T')[0],
-      isActive: true
+  const addTeamMember = useCallback(async (member) => {
+    setIsAddingStaff(true)
+    try {
+      const newMember = await api.vendor.team.invite({
+        email: member.email,
+        role: member.role,
+        name: member.name,
+      })
+      setTeam((prev) => [...prev, newMember])
+      toast.success(`${member.name || member.email} invited to team`)
+    } catch (err) {
+      toast.error(err?.message || 'Failed to invite team member')
+    } finally {
+      setIsAddingStaff(false)
     }
-    setSettings(prev => ({
-      ...prev,
-      team: [...prev.team, newMember]
-    }))
-    toast.success(`${member.name} added to team`)
   }, [])
   
-  // Remove team member
-  const removeTeamMember = useCallback((id) => {
-    setSettings(prev => ({
-      ...prev,
-      team: prev.team.filter(member => member.id !== id)
-    }))
-    toast.success('Team member removed')
+  const removeTeamMember = useCallback(async (id) => {
+    try {
+      await api.vendor.team.delete(id)
+      setTeam((prev) => prev.filter((m) => m.id !== id))
+      toast.success('Team member removed')
+    } catch (err) {
+      toast.error(err?.message || 'Failed to remove team member')
+    }
   }, [])
   
-  // Toggle team member active status
   const toggleTeamMemberActive = useCallback((id) => {
-    setSettings(prev => ({
-      ...prev,
-      team: prev.team.map(member =>
+    setTeam((prev) =>
+      prev.map((member) =>
         member.id === id ? { ...member, isActive: !member.isActive } : member
       )
-    }))
+    )
   }, [])
   
-  // Update team member role
   const updateTeamMemberRole = useCallback((id, role) => {
-    setSettings(prev => ({
-      ...prev,
-      team: prev.team.map(member =>
-        member.id === id ? { ...member, role } : member
-      )
-    }))
+    setTeam((prev) =>
+      prev.map((member) => (member.id === id ? { ...member, role } : member))
+    )
     toast.success('Role updated')
   }, [])
   
-  // Update security setting
   const updateSecuritySetting = useCallback((key, value) => {
     setSettings(prev => ({
       ...prev,
@@ -152,7 +188,6 @@ export function useSettingsManagement() {
     toast.success('Security setting updated', { id: 'settings-update' })
   }, [])
   
-  // Update integration setting
   const updateIntegrationSetting = useCallback((category, key, value) => {
     setSettings(prev => ({
       ...prev,
@@ -163,15 +198,18 @@ export function useSettingsManagement() {
     }))
   }, [])
   
-  // Save all settings
   const saveAllSettings = useCallback(async () => {
     setIsSaving(true)
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    setIsSaving(false)
-    toast.success('All settings saved successfully')
-  }, [])
+    try {
+      await api.vendor.settings.update(settings)
+      toast.success('All settings saved successfully')
+    } catch (err) {
+      toast.error(err?.message || 'Failed to save settings')
+    } finally {
+      setIsSaving(false)
+    }
+  }, [settings])
   
-  // Reset to defaults
   const resetToDefaults = useCallback(() => {
     if (confirm('Reset all settings to default values? This cannot be undone.')) {
       setSettings(INITIAL_SETTINGS_STATE)
@@ -181,10 +219,12 @@ export function useSettingsManagement() {
   
   return {
     settings,
+    team,
     activeCategory,
     setActiveCategory,
     isSaving,
     isAddingStaff,
+    isLoadingTeam,
     setIsAddingStaff,
     updateGeneralSetting,
     updateOrderSetting,

@@ -1,7 +1,10 @@
 // src/components/vendor/rs2/analytics/PeakHoursHeatmap.jsx
-import { formatNumber } from "@/lib/formatters";
+import AnalyticsEmptyState from "./AnalyticsEmptyState";
 
 export default function PeakHoursHeatmap({ data }) {
+  const hasData = Array.isArray(data) && data.some((row) =>
+    Object.entries(row).some(([key, value]) => key !== "day" && Number(value) > 0)
+  );
   const hours = [
     "10am",
     "11am",
@@ -35,6 +38,12 @@ export default function PeakHoursHeatmap({ data }) {
         Orders by hour and day, darker indicates higher volume.
       </p>
 
+      {!hasData ? (
+        <AnalyticsEmptyState
+          title="No activity recorded."
+          message="Customer activity by day and hour will appear once orders begin."
+        />
+      ) : (
       <div className="overflow-x-auto pb-4 custom-scrollbar">
         <table className="w-full min-w-[600px] text-center border-separate border-spacing-1.5">
           <thead>
@@ -77,7 +86,9 @@ export default function PeakHoursHeatmap({ data }) {
           </tbody>
         </table>
       </div>
+      )}
 
+      {hasData && (
       <div className="flex items-center justify-center gap-6 mt-6 pt-4 border-t border-stone-100 dark:border-white/5 text-[9px] font-black uppercase tracking-[0.2em] text-stone-400">
         <div className="flex items-center gap-2">
           <div className="w-3 h-3 rounded-sm bg-stone-50 dark:bg-white/5 border border-stone-200 dark:border-white/10"></div>
@@ -96,6 +107,7 @@ export default function PeakHoursHeatmap({ data }) {
           <span>Peak</span>
         </div>
       </div>
+      )}
     </div>
   );
 }

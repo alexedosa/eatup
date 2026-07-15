@@ -1,9 +1,10 @@
 'use client'
-import { useState } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
+import { useRouter } from "next/navigation";
 import { AnimatePresence } from "framer-motion";
-import { Icons } from "@/data/vendorIcons";
-import { Notification, Sun1, Moon, Flash } from "iconsax-reactjs";
+import { Notification, Sun1, Moon, Flash, LogoutCurve, ProfileCircle } from "iconsax-reactjs";
 import { useTheme } from "@/context/ThemeContext";
+import { api } from "@/lib/api";
 import NotificationDropdown from "./NotificationDropdown";
 
 export default function FloatingNavbar({
@@ -15,15 +16,38 @@ export default function FloatingNavbar({
   vendorData,
   dashboardData
 }) {
+  const router = useRouter();
+  const notificationButtonRef = useRef(null);
   const [showNotifications, setShowNotifications] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const { isDarkMode, toggleTheme } = useTheme();
+  const [notifications, setNotifications] = useState([]);
 
-  const notifications = dashboardData?.orders?.slice(0, 5).map((order, idx) => ({
-    id: order._id || order.id || idx,
-    text: `Order ${order.orderNumber || order.id} is ${order.status}`,
-    read: order.status !== 'PENDING'
-  })) || [];
+  useEffect(() => {
+    api.vendor.notifications.list()
+      .then((data) => setNotifications(Array.isArray(data) ? data : []))
+      .catch(() => {});
+  }, []);
+
+  const handleMarkAllRead = useCallback(async () => {
+    try {
+      await api.vendor.notifications.markAllRead();
+      setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+    } catch {
+      // silent
+    }
+  }, []);
+
+  const handleMarkRead = useCallback(async (notifId) => {
+    try {
+      await api.vendor.notifications.markRead(notifId);
+      setNotifications((prev) =>
+        prev.map((n) => (n.id === notifId ? { ...n, read: true } : n))
+      );
+    } catch {
+      // silent
+    }
+  }, []);
 
   const unreadCount = notifications.filter((n) => !n.read).length;
 
@@ -42,7 +66,17 @@ export default function FloatingNavbar({
     audio.play().catch(() => {});
   };
 
+  const handleLogout = useCallback(async () => {
+    await api.auth.logoutCurrentUser();
+    router.replace("/auth/login?role=vendor");
+  }, [router]);
+
   const businessName = vendorData?.businessName || dashboardData?.shops?.[0]?.name || "Loading...";
+  const profileLabel =
+    vendorData?.firstName ||
+    vendorData?.name ||
+    vendorData?.email ||
+    "Profile";
 
   return (
     <nav 
@@ -51,13 +85,9 @@ export default function FloatingNavbar({
       className="w-full bg-white/80 dark:bg-[#1a1c1e]/80 backdrop-blur-xl border border-stone-200 dark:border-white/10 shadow-md rounded-2xl px-5 py-3 flex items-center justify-between gap-4"
     >
       {/* LEFT */}
-      <div className="flex items-center gap-3">
-        <div className="w-10 h-10 rounded-xl bg-stone-900 dark:bg-white text-amber-50 dark:text-stone-900 flex items-center justify-center shadow-sm">
-          <Icons.brand variant="Bold" className="w-5 h-5" />
-        </div>
-
+      <div className="flex min-w-0 items-center">
         <div className="flex flex-col">
-          <h2 className="font-semibold text-stone-800 dark:text-white text-base">
+          <h2 className="truncate text-base font-semibold text-stone-800 dark:text-white">
             {businessName}
           </h2>
 
@@ -104,6 +134,7 @@ export default function FloatingNavbar({
         {/* NOTIFICATIONS */}
         <div className="relative">
           <button
+            ref={notificationButtonRef}
             onClick={() => setShowNotifications(!showNotifications)}
             aria-label="View Notifications"
             aria-expanded={showNotifications}
@@ -124,6 +155,9 @@ export default function FloatingNavbar({
                 isOpen={showNotifications} 
                 onClose={() => setShowNotifications(false)} 
                 notifications={notifications}
+                onMarkRead={handleMarkRead}
+                onMarkAllRead={handleMarkAllRead}
+                anchorRef={notificationButtonRef}
               />
             )}
           </AnimatePresence>
@@ -157,6 +191,32 @@ export default function FloatingNavbar({
           ) : (
             <Moon variant="Bold" size="18" className="text-white" />
           )}
+        </button>
+
+        {/* LOGOUT */}
+        <button
+          type="button"
+          onClick={handleLogout}
+          aria-label="Logout"
+          className="h-9 rounded-xl border border-red-200/70 bg-red-50 px-3 text-red-600 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:bg-red-100 hover:text-red-700 active:scale-95 dark:border-red-500/15 dark:bg-red-500/10 dark:text-red-300 dark:hover:bg-red-500/15"
+        >
+          <span className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.14em]">
+            <LogoutCurve size="17" variant="Bold" />
+            Logout
+          </span>
+        </button>
+
+        {/* PROFILE */}
+        <button
+          type="button"
+          onClick={() => router.push("/vendor/dashboard/profile")}
+          aria-label="Open profile"
+          className="flex h-9 items-center gap-2 rounded-xl bg-stone-50 px-2.5 text-stone-600 transition-all duration-300 hover:bg-stone-100 hover:text-stone-900 dark:bg-white/5 dark:text-stone-300 dark:hover:bg-white/10 dark:hover:text-white"
+        >
+          <ProfileCircle size="20" variant="Bold" className="text-amber-500" />
+          <span className="hidden max-w-[90px] truncate text-xs font-bold lg:block">
+            {profileLabel}
+          </span>
         </button>
       </div>
     </nav>

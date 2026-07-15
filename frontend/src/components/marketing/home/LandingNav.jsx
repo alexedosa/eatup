@@ -118,7 +118,7 @@ export default function LandingNav() {
         {/* Right CTAs — desktop */}
         <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 8 }}
           className="nav-ctas-desktop">
-          <Link href="/auth/login" style={{
+          <Link href="/auth/login?role=vendor" style={{
             fontSize: 14, fontWeight: 500,
             color: MUTED, textDecoration: "none",
             padding: "9px 18px", borderRadius: 100,
@@ -177,7 +177,7 @@ export default function LandingNav() {
           <MobileLink href="#riders" onClick={() => setMobileOpen(false)} indent>Riders</MobileLink>
           <MobileLink href="#how-it-works" onClick={() => setMobileOpen(false)}>How it Works</MobileLink>
           <div style={{ paddingTop: 24, display: "flex", flexDirection: "column", gap: 10 }}>
-            <Link href="/auth/login" onClick={() => setMobileOpen(false)} style={{
+            <Link href="/auth/login?role=vendor" onClick={() => setMobileOpen(false)} style={{
               textAlign: "center", fontSize: 14, fontWeight: 500,
               color: MUTED, border: "1px solid rgba(0,0,0,0.12)",
               padding: "12px 20px", borderRadius: 100, textDecoration: "none",

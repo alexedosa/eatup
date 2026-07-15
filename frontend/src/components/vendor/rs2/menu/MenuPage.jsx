@@ -16,6 +16,7 @@ export default function MenuPage({ searchQuery: globalSearchQuery }) {
     categories,
     activeCategory,
     setActiveCategory,
+    categoryOptions,
     isAddModalOpen,
     setIsAddModalOpen,
     isCategoryManagerOpen,
@@ -47,12 +48,8 @@ export default function MenuPage({ searchQuery: globalSearchQuery }) {
   const activeCategoryData = categories.find(c => c.id === activeCategory)
   const filteredItems = getFilteredItems()
   
-  const handleAddItem = (newItem) => {
-    addItem(newItem)
-    toast.success(`${newItem.name} added to menu!`, {
-      icon: <Add size="20" variant="Bold" color="white" />,
-      style: { background: '#f59e0b', color: 'white', borderRadius: '12px' }
-    })
+  const handleAddItem = async (newItem) => {
+    await addItem(newItem)
   }
   
   const handleDeleteItem = (itemId, categoryId) => {
@@ -173,7 +170,7 @@ export default function MenuPage({ searchQuery: globalSearchQuery }) {
       <AddItemModal
         isOpen={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}
-        categories={categories}
+        categories={categoryOptions}
         onAdd={handleAddItem}
       />
       

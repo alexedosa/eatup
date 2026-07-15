@@ -2,6 +2,7 @@
 import { motion } from 'framer-motion'
 import { useState } from 'react'
 import Image from 'next/image'
+import { getProductImageUrl } from '@/lib/productUtils'
 import { Timer1, MagicStar, ShoppingCart, Edit2, Trash, Eye, EyeSlash, Copy } from 'iconsax-reactjs'
 
 export default function MenuCard({ item, categoryColor, onEdit, onDelete, onToggleAvailability }) {
@@ -27,6 +28,8 @@ export default function MenuCard({ item, categoryColor, onEdit, onDelete, onTogg
     return colors[color] || colors.amber
   }
   
+  const itemImage = getProductImageUrl(item)
+
   return (
     <motion.div
       layout
@@ -40,9 +43,9 @@ export default function MenuCard({ item, categoryColor, onEdit, onDelete, onTogg
         <div className="flex items-start gap-4">
           {/* Item Image */}
           <div className="w-20 h-20 rounded-2xl flex-shrink-0 overflow-hidden bg-stone-100 dark:bg-white/5 border border-stone-200 dark:border-white/10 relative">
-            {item.image ? (
+            {itemImage ? (
               <Image 
-                src={item.image} 
+                src={itemImage} 
                 alt={item.name} 
                 fill 
                 className="object-cover"

@@ -1,23 +1,49 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useVendorData } from "@/hooks/useVendorData";
-// import Badge from "@/components/ui/Badge";
+import { getStoredUser } from "@/lib/authService";
+import { api } from "@/lib/api";
+
+function getDisplayName(user, vendorInfo) {
+  if (user?.firstName || user?.lastName) {
+    return [user.firstName, user.lastName].filter(Boolean).join(" ");
+  }
+  return user?.name || user?.businessName || vendorInfo.name || "Vendor";
+}
+
+function getInitials(name) {
+  if (!name) return "?";
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (parts.length >= 2) {
+    return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
+  }
+  return name.slice(0, 2).toUpperCase();
+}
 
 export default function Navbar({ onMenuToggle }) {
   const vendorInfo = useVendorData();
+  const [user, setUser] = useState(null);
   const [isOnline, setIsOnline] = useState(true);
   const [showNotifs, setShowNotifs] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
+  const [notifications, setNotifications] = useState([]);
 
-  const notifications = dashboardData?.orders?.slice(0, 3).map((order, idx) => ({
-    id: order._id || order.id || idx,
-    text: `New order ${order.orderNumber || order.id} received`,
-    time: "Recently",
-    unread: order.status === 'PENDING',
-  })) || [];
+  useEffect(() => {
+    setUser(getStoredUser());
+  }, []);
 
-  const unreadCount = notifications.filter((n) => n.unread).length;
+  useEffect(() => {
+    api.vendor.notifications
+      .list()
+      .then((data) => setNotifications(Array.isArray(data) ? data.slice(0, 3) : []))
+      .catch(() => setNotifications([]));
+  }, []);
+
+  const displayName = getDisplayName(user, vendorInfo);
+  const displayEmail = user?.email || "";
+  const initials = getInitials(displayName);
+  const unreadCount = notifications.filter((n) => !n.read).length;
 
   return (
     <header className="h-16 bg-white border-b border-surface-100 flex items-center px-4 lg:px-6 gap-4 shrink-0 sticky top-0 z-10">
@@ -127,20 +153,26 @@ export default function Navbar({ onMenuToggle }) {
               </button>
             </div>
             <div className="divide-y divide-surface-50">
-              {notifications.map((n) => (
-                <div
-                  key={n.id}
-                  className={`px-4 py-3 flex items-start gap-3 hover:bg-surface-50 transition-colors cursor-pointer ${n.unread ? "" : "opacity-60"}`}
-                >
-                  <span
-                    className={`mt-1.5 w-2 h-2 rounded-full shrink-0 ${n.unread ? "bg-brand-500" : "bg-surface-200"}`}
-                  />
-                  <div className="min-w-0 flex-1">
-                    <p className="text-xs text-surface-700">{n.text}</p>
-                    <p className="text-xs text-surface-400 mt-0.5">{n.time}</p>
-                  </div>
+              {notifications.length === 0 ? (
+                <div className="px-4 py-6 text-center text-xs text-surface-400">
+                  No notifications yet
                 </div>
-              ))}
+              ) : (
+                notifications.map((n) => (
+                  <div
+                    key={n.id}
+                    className={`px-4 py-3 flex items-start gap-3 hover:bg-surface-50 transition-colors cursor-pointer ${n.read ? "opacity-60" : ""}`}
+                  >
+                    <span
+                      className={`mt-1.5 w-2 h-2 rounded-full shrink-0 ${!n.read ? "bg-brand-500" : "bg-surface-200"}`}
+                    />
+                    <div className="min-w-0 flex-1">
+                      <p className="text-xs text-surface-700">{n.title || n.text || n.message}</p>
+                      <p className="text-xs text-surface-400 mt-0.5">{n.time || "Recently"}</p>
+                    </div>
+                  </div>
+                ))
+              )}
             </div>
             <div className="px-4 py-3 border-t border-surface-100">
               <button className="text-xs text-surface-400 hover:text-surface-600 transition-colors w-full text-center">
@@ -162,7 +194,7 @@ export default function Navbar({ onMenuToggle }) {
           aria-label="Profile menu"
         >
           <div className="w-8 h-8 rounded-full bg-surface-200 flex items-center justify-center text-xs font-bold text-surface-600">
-            MT
+            {initials}
           </div>
           <svg
             width="14"
@@ -183,9 +215,11 @@ export default function Navbar({ onMenuToggle }) {
           <div className="absolute right-0 top-full mt-2 w-52 bg-white rounded-xl border border-surface-200 shadow-card-hover overflow-hidden z-50">
             <div className="px-4 py-3 border-b border-surface-100">
               <p className="text-sm font-semibold text-surface-800">
-                Mama Titi
+                {displayName}
               </p>
-              <p className="text-xs text-surface-400">mamatiti@eatup.ng</p>
+              {displayEmail ? (
+                <p className="text-xs text-surface-400">{displayEmail}</p>
+              ) : null}
             </div>
             {[
               { label: "Business Profile", icon: "🏠" },

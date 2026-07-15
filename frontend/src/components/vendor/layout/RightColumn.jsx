@@ -66,6 +66,7 @@ export default function RightColumn({
               onStoreToggle={onStoreToggle}
               onSearch={onSearch}
               vendorData={vendorData}
+              dashboardData={dashboardData}
             />
           )}
           

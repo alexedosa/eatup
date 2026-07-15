@@ -18,6 +18,7 @@ import DangerZone from './DangerZone'
 export default function SettingsPage() {
   const {
     settings,
+    team,
     activeCategory,
     setActiveCategory,
     isSaving,
@@ -59,7 +60,7 @@ export default function SettingsPage() {
       case 'team':
         return (
           <TeamSettings
-            team={settings.team}
+            team={team}
             onAddMember={addTeamMember}
             onRemoveMember={removeTeamMember}
             onToggleActive={toggleTeamMemberActive}
