@@ -107,7 +107,7 @@ export const sendOnboardingOTP = async (onboardingId, channel, target) => {
 export const verifyOnboardingOTP = async (onboardingId, otpSessionId, code) => {
   const response = await apiClient.post('/vendor/onboarding/otp/verify', {
     onboardingId,
-    "otpSessionId": "c40ebf3f-45f6-4051-b6d7-feb63f457947",
+    "otpSessionId": "e68fdf54-8f4a-4e87-819c-bcaf27e47de1",
     code,
   });
   return response.data.data;

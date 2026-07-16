@@ -1,5 +1,6 @@
 import { apiClient } from './api/client';
 import { clearUser } from '../store/auth';
+import { mergeVendorAccessFields } from './vendorAccessControl';
 
 // --- Token Management Helpers ---
 
@@ -84,18 +85,20 @@ function buildUserFromRegister(data, result, role) {
 }
 
 function buildUserFromAuthResult(data, result, role) {
-  return (
-    result.user || {
-      id: result.userId || result.id,
-      userId: result.userId || result.id,
-      firstName: data.firstName,
-      lastName: data.lastName,
-      email: data.email || result.email,
-      phone: data.phone || result.phone,
-      role: result.role || role,
-      onboardingStatus: result.onboardingStatus,
-    }
-  );
+  const fallbackUser = {
+    id: result.userId || result.id,
+    userId: result.userId || result.id,
+    firstName: data.firstName,
+    lastName: data.lastName,
+    email: data.email || result.email,
+    phone: data.phone || result.phone,
+    role: result.role || role,
+    onboardingStatus: result.onboardingStatus,
+    isVendorVerified: result.isVendorVerified,
+    haveShop: result.haveShop,
+  };
+
+  return mergeVendorAccessFields(fallbackUser, result.user);
 }
 
 function normalizeSessionRole(user, role) {
@@ -162,7 +165,9 @@ export const login = async (email, password, sessionRole) => {
   
   try {
     const profile = await getProfile();
-    if (profile) result.user = normalizeSessionRole(profile, sessionRole);
+    if (profile) {
+      result.user = normalizeSessionRole(mergeVendorAccessFields(result.user, profile), sessionRole);
+    }
   } catch (e) {
     console.warn("Could not fetch profile after login");
   }

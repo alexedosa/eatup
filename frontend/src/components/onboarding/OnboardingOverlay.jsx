@@ -16,10 +16,17 @@ const FOCUSABLE_SELECTOR = [
   '[tabindex]:not([tabindex="-1"])',
 ].join(',')
 
-export default function OnboardingOverlay({ open, userName, onClose, onCompleted }) {
+export default function OnboardingOverlay({
+  open,
+  userName,
+  onClose,
+  onCompleted,
+  mandatory = false,
+  initialScreen = 'welcome',
+}) {
   const modalRef = useRef(null)
   const previousFocusRef = useRef(null)
-  const [screen, setScreen] = useState('welcome')
+  const [screen, setScreen] = useState(initialScreen)
 
   useEffect(() => {
     if (!open) return undefined
@@ -43,6 +50,7 @@ export default function OnboardingOverlay({ open, userName, onClose, onCompleted
   const handleKeyDown = (event) => {
     if (event.key === 'Escape') {
       event.preventDefault()
+      if (mandatory) return
       if (screen !== 'success') {
         onClose()
       }
@@ -73,15 +81,15 @@ export default function OnboardingOverlay({ open, userName, onClose, onCompleted
     if (open) return undefined
 
     const timer = window.setTimeout(() => {
-      setScreen('welcome')
+      setScreen(initialScreen)
     }, 0)
 
     return () => window.clearTimeout(timer)
-  }, [open])
+  }, [initialScreen, open])
 
   const handleCreated = async (shop) => {
-    setScreen('success')
     await onCompleted(shop)
+    setScreen('success')
   }
 
   return (
@@ -111,7 +119,7 @@ export default function OnboardingOverlay({ open, userName, onClose, onCompleted
             <h1 id="shop-onboarding-title" className="sr-only">
               Create your first shop
             </h1>
-            {screen !== 'success' && (
+            {screen !== 'success' && !mandatory && (
               <button
                 type="button"
                 onClick={onClose}

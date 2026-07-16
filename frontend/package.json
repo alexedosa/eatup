@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "preview": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test": "node tests/vendor-access-control.test.mjs"
   },
   "dependencies": {
     "axios": "^1.16.1",
