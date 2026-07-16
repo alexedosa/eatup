@@ -92,7 +92,7 @@ export default function RolePickerPage() {
         <div className="rp-footer">
           <p className="rp-footer-text">
             Already have an account?{" "}
-            <button className="rp-footer-link" onClick={() => router.push("/auth/login")}>
+            <button className="rp-footer-link" onClick={() => router.push("/auth/login?role=vendor")}>
               Sign in
             </button>
           </p>

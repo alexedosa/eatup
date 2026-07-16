@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import logo from "@/assets/logo/logo.png";
 import { api } from "@/lib/api";
@@ -197,9 +198,9 @@ export default function Step0({ nextStep, updateFormData }) {
 
         <p className="auth-footer-note">
           Already have an account?{" "}
-          <button className="auth-text-link" onClick={() => router.push("/auth/login?role=vendor")}>
+          <Link className="auth-text-link" href="/auth/login?role=vendor">
             Sign in
-          </button>
+          </Link>
         </p>
       </div>
     </div>

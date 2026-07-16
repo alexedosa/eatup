@@ -130,7 +130,7 @@ export default function LandingNav() {
           >
             Vendor Login
           </Link>
-          <Link href="/auth/role-picker" style={{
+          <Link href="/auth/get-app" style={{
             fontSize: 14, fontWeight: 600,
             color: "#FFFFFF", background: ORANGE,
             textDecoration: "none",
@@ -182,7 +182,7 @@ export default function LandingNav() {
               color: MUTED, border: "1px solid rgba(0,0,0,0.12)",
               padding: "12px 20px", borderRadius: 100, textDecoration: "none",
             }}>Vendor Login</Link>
-            <Link href="/auth/role-picker" onClick={() => setMobileOpen(false)} style={{
+            <Link href="/auth/get-app" onClick={() => setMobileOpen(false)} style={{
               textAlign: "center", fontSize: 14, fontWeight: 600,
               color: "#FFFFFF", background: ORANGE,
               padding: "12px 20px", borderRadius: 100, textDecoration: "none",

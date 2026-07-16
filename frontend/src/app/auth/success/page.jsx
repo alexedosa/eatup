@@ -61,9 +61,9 @@ export default function AuthSuccessPage() {
 
         <button 
           className="auth-btn auth-btn-primary"
-          onClick={() => router.push("/auth/login")}
+          onClick={() => router.push("/auth/get-app")}
         >
-          Go to Login
+          Get the App
         </button>
 
         <p className="auth-footer-note" style={{ marginTop: 24 }}>

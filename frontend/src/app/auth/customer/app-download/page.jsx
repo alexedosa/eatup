@@ -2,15 +2,11 @@
 
 import { Suspense } from "react";
 import Image from "next/image";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import logo from "@/assets/logo/logo.png";
 
 function AppDownloadContent() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const role = searchParams.get("role") || "customer";
-
-  const dashRoute = role === "rider" ? "/rider/dashboard" : "/customer/dashboard";
 
   return (
     <div className="auth-page">
@@ -123,9 +119,9 @@ function AppDownloadContent() {
 
           <button
             className="auth-btn auth-btn-ghost"
-            onClick={() => router.push(dashRoute)}
+            onClick={() => router.push("/")}
           >
-            Continue to web app
+            Back to home
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M5 12h14M12 5l7 7-7 7"/>
             </svg>

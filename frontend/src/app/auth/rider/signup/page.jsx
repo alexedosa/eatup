@@ -283,13 +283,13 @@ export default function RiderSignupPage() {
           <span className="auth-divider-line" />
         </div>
         <p className="auth-footer-note">
-          Already have an account?{" "}
-          <Link href="/auth/login?role=rider" className="auth-text-link">Log in</Link>
+          Already registered?{" "}
+          <Link href="/auth/get-app" className="auth-text-link">Get the app</Link>
         </p>
         <p className="auth-footer-note" style={{ marginTop: 8 }}>
           By signing up, you agree to our{" "}
-          <Link href="/terms" className="auth-text-link">Terms</Link> and{" "}
-          <Link href="/privacy" className="auth-text-link">Privacy Policy</Link>
+          <span className="auth-text-link">Terms</span> and{" "}
+          <span className="auth-text-link">Privacy Policy</span>
         </p>
       </div>
 

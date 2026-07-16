@@ -367,8 +367,8 @@ export default function CustomerSignupPage() {
 
         <p className="auth-footer-note">
           Already have an account?{" "}
-          <button className="auth-text-link" onClick={() => router.push("/auth/login?role=customer")}>
-            Sign in
+          <button className="auth-text-link" onClick={() => router.push("/auth/get-app")}>
+            Get the app
           </button>
         </p>
       </div>

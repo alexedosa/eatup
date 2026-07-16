@@ -108,7 +108,7 @@ export default function RiderSection() {
             Your schedule. Your vehicle. Your terms. Earn per delivery, paid straight to your account.
           </p>
 
-          <Link href="/auth/rider/register" className="font-jakarta rs-cta" style={{
+          <Link href="/auth/rider/signup" className="font-jakarta rs-cta" style={{
             display: "inline-flex", alignItems: "center", gap: 8,
             background: BLUE, color: "#fff",
             padding: "13px 26px", borderRadius: 100,

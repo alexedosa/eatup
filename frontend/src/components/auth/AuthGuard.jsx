@@ -2,7 +2,19 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { api } from "@/lib/api";
+
+function isAllowedRole(user, requiredRole) {
+  const userRole = user.role?.toLowerCase();
+  const targetRole = requiredRole.toLowerCase();
+
+  if (userRole === targetRole || userRole === "admin") return true;
+
+  return (
+    targetRole === "vendor" &&
+    userRole === "user" &&
+    typeof user.onboardingStatus === "string"
+  );
+}
 
 export default function AuthGuard({ children, requiredRole = "vendor" }) {
   const router = useRouter();
@@ -20,13 +32,8 @@ export default function AuthGuard({ children, requiredRole = "vendor" }) {
 
       try {
         const user = JSON.parse(userStr);
-        // Normalize role check (handle case variations if any)
-        const userRole = user.role?.toLowerCase();
-        const targetRole = requiredRole.toLowerCase();
-
-        if (userRole !== targetRole && userRole !== "admin") {
-          // If role doesn't match, redirect to role picker or login
-          router.push("/auth/role-picker");
+        if (!isAllowedRole(user, requiredRole)) {
+          router.push(`/auth/login?role=${requiredRole}`);
           return;
         }
 

@@ -98,6 +98,11 @@ function buildUserFromAuthResult(data, result, role) {
   );
 }
 
+function normalizeSessionRole(user, role) {
+  if (!role || !user) return user;
+  return { ...user, role };
+}
+
 function normalizeAuthResponse(response, data, role) {
   const result = response.data.data;
   saveTokens(result.accessToken || result.token, result.refreshToken || null);
@@ -145,16 +150,19 @@ export const socialLogin = async (provider, idToken) => {
  * @param {string} email 
  * @param {string} password 
  */
-export const login = async (email, password) => {
+export const login = async (email, password, sessionRole) => {
   const response = await apiClient.post('/auth/login', { email, password });
   const result = response.data.data;
   saveTokens(result.accessToken || result.token, result.refreshToken || null);
-  result.user = buildUserFromAuthResult({ email }, result, result.role || 'USER');
+  result.user = normalizeSessionRole(
+    buildUserFromAuthResult({ email }, result, result.role || 'USER'),
+    sessionRole
+  );
   localStorage.setItem('user', JSON.stringify(result.user));
   
   try {
     const profile = await getProfile();
-    if (profile) result.user = profile;
+    if (profile) result.user = normalizeSessionRole(profile, sessionRole);
   } catch (e) {
     console.warn("Could not fetch profile after login");
   }

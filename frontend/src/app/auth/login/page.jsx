@@ -3,20 +3,18 @@
 import { api } from "@/lib/api";
 import { toast } from "react-hot-toast";
 import { useState, Suspense } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 import logo from "@/assets/logo/logo.png";
 
 function getDashboardRoute(role) {
   if (role === "vendor") return "/vendor/dashboard";
-  if (role === "rider") return "/home";
-  return "/customer/dashboard";
+  return "/vendor/dashboard";
 }
 
 function LoginContent() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const role = searchParams.get("role") || "customer";
+  const role = "vendor";
 
   const [form, setForm] = useState({ email: "", password: "" });
   const [showPw, setShowPw] = useState(false);
@@ -33,7 +31,7 @@ function LoginContent() {
   const handleLogin = async () => {
     setLoading(true);
     try {
-      const res = await api.auth.login(form.email, form.password);
+      const res = await api.auth.login(form.email, form.password, "VENDOR");
       setLoading(false);
 
       if (res.success) {
@@ -53,7 +51,7 @@ function LoginContent() {
       ? "/auth/rider/signup"
       : role === "vendor"
         ? "/auth/vendor/register"
-        : "/auth/customer/signup";
+        : "/auth/vendor/register";
 
   const roleLabel = role.charAt(0).toUpperCase() + role.slice(1);
 
@@ -177,7 +175,7 @@ function LoginContent() {
               <button
                 className="auth-text-link"
                 style={{ fontSize: 12 }}
-                onClick={() => router.push("/auth/forgot-password")}
+                onClick={() => toast("Please contact EatUp support to reset your password.")}
               >
                 Forgot?
               </button>

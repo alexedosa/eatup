@@ -100,7 +100,7 @@ export default function HeroSection() {
             display: "flex", alignItems: "center", gap: 12,
             flexWrap: "wrap", marginBottom: 48,
           }}>
-            <Link href="/auth/role-picker" className="font-jakarta hero-cta-primary" style={{
+            <Link href="/auth/get-app" className="font-jakarta hero-cta-primary" style={{
               display: "inline-flex", alignItems: "center", gap: 8,
               background: INK, color: "#fff",
               padding: "12px 24px", borderRadius: 100,
